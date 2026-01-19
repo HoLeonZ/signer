@@ -43,7 +43,10 @@ const state = {
         },
         isPlaying: false,
         currentTrack: null,
-        audioElement: null
+        audioElement: null,
+        currentTime: 0,
+        duration: 0,
+        progressInterval: null
     }
 };
 
@@ -886,7 +889,13 @@ async function loadSongsJamendo(type = 'search') {
         const data = await response.json();
         
         if (data.success && data.data) {
-            songsManageState.jamendo.tracks = data.data;
+            // 规范化字段名，确保兼容snake_case和camelCase
+            songsManageState.jamendo.tracks = data.data.map(track => ({
+                ...track,
+                artistName: track.artistName || track.artist_name || '未知艺术家',
+                albumName: track.albumName || track.album_name || null,
+                name: track.name || track.title || '未知歌曲'
+            }));
             renderSongsJamendoList();
             updateSongsJamendoPagination();
         } else {
@@ -923,24 +932,49 @@ function renderSongsJamendoList() {
         return;
     }
     
-    container.innerHTML = songsManageState.jamendo.tracks.map(track => `
-        <div class="jamendo-track-compact" data-track-id="${track.id}">
+    const isCurrentTrack = (trackId) => state.jamendo.currentTrack?.id === trackId;
+    const isPlaying = (trackId) => isCurrentTrack(trackId) && state.jamendo.isPlaying;
+    
+    container.innerHTML = songsManageState.jamendo.tracks.map(track => {
+        const isActive = isCurrentTrack(track.id);
+        const playing = isPlaying(track.id);
+        const progress = isActive && state.jamendo.duration > 0 
+            ? (state.jamendo.currentTime / state.jamendo.duration) * 100 
+            : 0;
+        
+        return `
+        <div class="jamendo-track-compact ${isActive ? 'track-playing' : ''}" data-track-id="${track.id}">
             <div class="track-thumb">
                 ${track.image ? 
-                    `<img src="${track.image}" alt="${track.name}" loading="lazy">` : 
+                    `<img src="${track.image}" alt="${track.name || '未知歌曲'}" loading="lazy">` : 
                     `<div class="track-thumb-placeholder">🎵</div>`
                 }
-                <div class="play-overlay" onclick="playJamendoInSongs('${track.id}')">
-                    <span>▶</span>
+                <div class="play-overlay ${playing ? 'playing' : ''}" onclick="playJamendoInSongs('${track.id}')">
+                    <span>${playing ? '⏸' : '▶'}</span>
                 </div>
             </div>
             <div class="track-main">
-                <div class="track-title-sm" title="${track.name}">${track.name}</div>
-                <div class="track-artist-sm" title="${track.artistName}">${track.artistName}</div>
+                <div class="track-title-sm" title="${track.name || '未知歌曲'}">
+                    ${track.name || '未知歌曲'}
+                    ${playing ? '<span class="playing-indicator">●</span>' : ''}
+                </div>
+                <div class="track-artist-sm" title="${track.artistName || '未知艺术家'}">${track.artistName || '未知艺术家'}</div>
                 <div class="track-meta-sm">
                     <span>⏱ ${formatDuration(track.duration)}</span>
                     ${track.albumName ? `<span>💿 ${track.albumName}</span>` : ''}
                 </div>
+                ${isActive ? `
+                    <div class="track-progress-container-compact">
+                        <div class="track-progress-bar-compact">
+                            <div class="track-progress-fill-compact" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="track-progress-time-compact">
+                            <span>${formatDuration(state.jamendo.currentTime)}</span>
+                            <span>/</span>
+                            <span>${formatDuration(state.jamendo.duration || track.duration)}</span>
+                        </div>
+                    </div>
+                ` : ''}
             </div>
             <div class="track-actions-sm">
                 <button class="btn-action-sm" onclick="previewJamendoInSongs('${track.id}')" title="试听">
@@ -951,7 +985,8 @@ function renderSongsJamendoList() {
                 </button>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function updateSongsJamendoPagination() {
@@ -1015,15 +1050,113 @@ function playJamendoInSongs(trackId) {
     const track = songsManageState.jamendo.tracks.find(t => t.id === trackId);
     if (!track) return;
     
-    if (state.jamendo.audioElement) {
-        state.jamendo.audioElement.pause();
+    // 规范化字段名
+    const normalizedTrack = {
+        ...track,
+        artistName: track.artistName || track.artist_name || '未知艺术家',
+        albumName: track.albumName || track.album_name || null,
+        name: track.name || track.title || '未知歌曲'
+    };
+    
+    // 如果正在播放同一首歌曲，则暂停
+    if (state.jamendo.currentTrack?.id === trackId && state.jamendo.isPlaying) {
+        if (state.jamendo.audioElement) {
+            state.jamendo.audioElement.pause();
+            state.jamendo.isPlaying = false;
+            stopSongsProgressUpdate();
+            renderSongsJamendoList();
+            showToast('已暂停', 'info');
+        }
+        return;
     }
     
-    state.jamendo.audioElement = new Audio(track.audio);
+    // 如果暂停状态，恢复播放
+    if (state.jamendo.currentTrack?.id === trackId && !state.jamendo.isPlaying) {
+        if (state.jamendo.audioElement) {
+            state.jamendo.audioElement.play().then(() => {
+                state.jamendo.isPlaying = true;
+                startSongsProgressUpdate();
+                renderSongsJamendoList();
+            }).catch(err => {
+                console.error('恢复播放失败:', err);
+                showToast('恢复播放失败', 'error');
+            });
+        }
+        return;
+    }
+    
+    // 停止当前播放
+    if (state.jamendo.audioElement) {
+        state.jamendo.audioElement.pause();
+        state.jamendo.audioElement = null;
+    }
+    
+    state.jamendo.currentTrack = normalizedTrack;
+    state.jamendo.audioElement = new Audio(normalizedTrack.audio);
     state.jamendo.audioElement.volume = 0.7;
+    
+    // 添加事件监听
+    state.jamendo.audioElement.onloadedmetadata = () => {
+        state.jamendo.duration = state.jamendo.audioElement.duration;
+        renderSongsJamendoList();
+    };
+    
+    state.jamendo.audioElement.ontimeupdate = () => {
+        state.jamendo.currentTime = state.jamendo.audioElement.currentTime;
+        updateSongsTrackProgress();
+    };
+    
+    state.jamendo.audioElement.onplay = () => {
+        state.jamendo.isPlaying = true;
+        startSongsProgressUpdate();
+        renderSongsJamendoList();
+    };
+    
+    state.jamendo.audioElement.onpause = () => {
+        state.jamendo.isPlaying = false;
+        stopSongsProgressUpdate();
+        renderSongsJamendoList();
+    };
+    
+    state.jamendo.audioElement.onended = () => {
+        state.jamendo.isPlaying = false;
+        state.jamendo.currentTime = 0;
+        state.jamendo.duration = 0;
+        state.jamendo.currentTrack = null;
+        stopSongsProgressUpdate();
+        if (state.jamendo.audioElement) {
+            state.jamendo.audioElement = null;
+        }
+        renderSongsJamendoList();
+    };
+    
+    state.jamendo.audioElement.onerror = () => {
+        state.jamendo.isPlaying = false;
+        state.jamendo.currentTime = 0;
+        state.jamendo.duration = 0;
+        state.jamendo.currentTrack = null;
+        stopSongsProgressUpdate();
+        if (state.jamendo.audioElement) {
+            state.jamendo.audioElement = null;
+        }
+        renderSongsJamendoList();
+        showToast('播放失败', 'error');
+    };
+    
     state.jamendo.audioElement.play().then(() => {
-        showToast(`正在播放: ${track.name}`, 'success');
+        state.jamendo.isPlaying = true;
+        showToast(`正在播放: ${normalizedTrack.name}`, 'success');
     }).catch(err => {
+        console.error('播放失败:', err);
+        state.jamendo.isPlaying = false;
+        state.jamendo.currentTime = 0;
+        state.jamendo.duration = 0;
+        state.jamendo.currentTrack = null;
+        if (state.jamendo.audioElement) {
+            state.jamendo.audioElement = null;
+        }
+        stopSongsProgressUpdate();
+        renderSongsJamendoList();
         showToast('播放失败', 'error');
     });
 }
@@ -2665,13 +2798,22 @@ async function loadJamendoTracks(type = 'search') {
             }
         }
         
+        // 请求包含歌词数据
+        params.append('includeLyrics', 'true');
+        
         url += '?' + params.toString();
         
         const response = await fetch(url);
         const data = await response.json();
         
         if (data.success && data.data) {
-            state.jamendo.tracks = data.data;
+            // 规范化字段名，确保兼容snake_case和camelCase
+            state.jamendo.tracks = data.data.map(track => ({
+                ...track,
+                artistName: track.artistName || track.artist_name || '未知艺术家',
+                albumName: track.albumName || track.album_name || null,
+                name: track.name || track.title || '未知歌曲'
+            }));
             renderJamendoTracks();
             updateJamendoPagination();
         } else {
@@ -2709,49 +2851,176 @@ function renderJamendoTracks() {
         return;
     }
     
-    container.innerHTML = state.jamendo.tracks.map(track => `
-        <div class="jamendo-track" data-track-id="${track.id}">
-            <div class="track-cover">
-                ${track.image ? 
-                    `<img src="${track.image}" alt="${track.name}" loading="lazy">` : 
-                    `<div class="track-cover-placeholder">🎵</div>`
-                }
-                <button class="track-play-btn" onclick="playJamendoTrack('${track.id}')">
-                    ${state.jamendo.currentTrack?.id === track.id && state.jamendo.isPlaying ? '⏸' : '▶'}
-                </button>
-                <span class="track-duration">${formatDuration(track.duration)}</span>
-            </div>
-            <div class="track-info">
-                <div class="track-title" title="${track.name}">${track.name}</div>
-                <div class="track-artist" title="${track.artistName}">${track.artistName}</div>
-                <div class="track-album" title="${track.albumName || ''}">
-                    ${track.albumName || 'Single'}
-                </div>
-                ${track.musicinfo?.tags?.genres ? `
-                    <div class="track-tags">
-                        ${track.musicinfo.tags.genres.slice(0, 3).map(g => 
-                            `<span class="track-tag">${g}</span>`
-                        ).join('')}
-                    </div>
-                ` : ''}
-                <div class="track-actions">
-                    <button class="track-action-btn" onclick="previewJamendoTrack('${track.id}')" title="试听">
-                        🎧 试听
+    const isCurrentTrack = (trackId) => state.jamendo.currentTrack?.id === trackId;
+    const isPlaying = (trackId) => isCurrentTrack(trackId) && state.jamendo.isPlaying;
+    
+    container.innerHTML = state.jamendo.tracks.map(track => {
+        const isActive = isCurrentTrack(track.id);
+        const playing = isPlaying(track.id);
+        const progress = isActive && state.jamendo.duration > 0 
+            ? (state.jamendo.currentTime / state.jamendo.duration) * 100 
+            : 0;
+        
+        return `
+        <div class="jamendo-track-list ${isActive ? 'track-playing' : ''}" data-track-id="${track.id}">
+            <div class="track-list-main">
+                <div class="track-list-thumb">
+                    ${track.image ? 
+                        `<img src="${track.image}" alt="${track.name || '未知歌曲'}" loading="lazy">` : 
+                        `<div class="track-thumb-placeholder">🎵</div>`
+                    }
+                    <button class="track-list-play-btn" onclick="playJamendoTrack('${track.id}')">
+                        ${playing ? '⏸' : '▶'}
                     </button>
-                    <button class="track-action-btn primary" onclick="importJamendoTrack('${track.id}')" title="导入">
-                        📥 导入
+                </div>
+                <div class="track-list-info">
+                    <div class="track-list-title-row">
+                        <div class="track-list-title" title="${track.name || '未知歌曲'}">
+                            ${track.name || '未知歌曲'}
+                            ${playing ? '<span class="playing-indicator">●</span>' : ''}
+                        </div>
+                        <div class="track-list-duration">${formatDuration(track.duration)}</div>
+                    </div>
+                    <div class="track-list-meta">
+                        <span class="track-list-artist" title="${track.artistName || '未知艺术家'}">
+                            ${track.artistName || '未知艺术家'}
+                        </span>
+                        ${track.albumName ? `<span class="track-list-separator">•</span><span class="track-list-album">${track.albumName}</span>` : ''}
+                        ${track.musicinfo?.tags?.genres?.length ? `
+                            <span class="track-list-separator">•</span>
+                            <span class="track-list-genre">${track.musicinfo.tags.genres[0]}</span>
+                        ` : ''}
+                    </div>
+                    ${isActive ? `
+                        <div class="track-progress-container">
+                            <div class="track-progress-bar">
+                                <div class="track-progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="track-progress-time">
+                                <span>${formatDuration(state.jamendo.currentTime)}</span>
+                                <span>/</span>
+                                <span>${formatDuration(state.jamendo.duration || track.duration)}</span>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${isActive && track.lyrics ? `
+                        <div class="track-lyrics-container">
+                            <div class="track-lyrics-toggle" onclick="toggleTrackLyrics('${track.id}')">
+                                <span>📝 查看歌词</span>
+                            </div>
+                            <div class="track-lyrics-content" id="lyrics-${track.id}" style="display: none;">
+                                <pre>${track.lyrics}</pre>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="track-list-actions">
+                    <button class="track-action-btn-sm" onclick="importJamendoTrack('${track.id}')" title="导入">
+                        📥
                     </button>
                 </div>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function formatDuration(seconds) {
-    if (!seconds) return '--:--';
+    if (!seconds || isNaN(seconds)) return '--:--';
     const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// 更新播放进度
+function updateTrackProgress() {
+    if (state.jamendo.audioElement && state.jamendo.isPlaying) {
+        const progressBar = document.querySelector('.track-progress-fill');
+        if (progressBar) {
+            const progress = (state.jamendo.currentTime / state.jamendo.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        const timeDisplay = document.querySelector('.track-progress-time');
+        if (timeDisplay) {
+            timeDisplay.innerHTML = `
+                <span>${formatDuration(state.jamendo.currentTime)}</span>
+                <span>/</span>
+                <span>${formatDuration(state.jamendo.duration)}</span>
+            `;
+        }
+    }
+}
+
+// 开始进度更新
+function startProgressUpdate() {
+    stopProgressUpdate(); // 先清除旧的
+    state.jamendo.progressInterval = setInterval(() => {
+        if (state.jamendo.audioElement && state.jamendo.isPlaying) {
+            state.jamendo.currentTime = state.jamendo.audioElement.currentTime;
+            updateTrackProgress();
+        }
+    }, 100);
+}
+
+// 停止进度更新
+function stopProgressUpdate() {
+    if (state.jamendo.progressInterval) {
+        clearInterval(state.jamendo.progressInterval);
+        state.jamendo.progressInterval = null;
+    }
+}
+
+// 切换歌词显示
+function toggleTrackLyrics(trackId) {
+    const lyricsContent = document.getElementById(`lyrics-${trackId}`);
+    const toggleBtn = lyricsContent?.previousElementSibling;
+    if (lyricsContent) {
+        const isVisible = lyricsContent.style.display !== 'none';
+        lyricsContent.style.display = isVisible ? 'none' : 'block';
+        if (toggleBtn) {
+            toggleBtn.innerHTML = isVisible ? '<span>📝 查看歌词</span>' : '<span>📝 隐藏歌词</span>';
+        }
+    }
+}
+
+// 更新歌曲管理页面的播放进度
+function updateSongsTrackProgress() {
+    if (state.jamendo.audioElement && state.jamendo.isPlaying) {
+        const progressBar = document.querySelector('.track-progress-fill-compact');
+        if (progressBar) {
+            const progress = (state.jamendo.currentTime / state.jamendo.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        const timeDisplay = document.querySelector('.track-progress-time-compact');
+        if (timeDisplay) {
+            timeDisplay.innerHTML = `
+                <span>${formatDuration(state.jamendo.currentTime)}</span>
+                <span>/</span>
+                <span>${formatDuration(state.jamendo.duration)}</span>
+            `;
+        }
+    }
+}
+
+// 开始歌曲管理页面的进度更新
+function startSongsProgressUpdate() {
+    stopSongsProgressUpdate(); // 先清除旧的
+    if (!state.jamendo.progressInterval) {
+        state.jamendo.progressInterval = setInterval(() => {
+            if (state.jamendo.audioElement && state.jamendo.isPlaying) {
+                state.jamendo.currentTime = state.jamendo.audioElement.currentTime;
+                updateSongsTrackProgress();
+                // 同时更新主列表的进度
+                updateTrackProgress();
+            }
+        }, 100);
+    }
+}
+
+// 停止歌曲管理页面的进度更新
+function stopSongsProgressUpdate() {
+    // 注意：这里不清理interval，因为可能主列表也在使用
+    // 实际的清理在stopProgressUpdate中统一处理
 }
 
 function updateJamendoPagination() {
@@ -2823,39 +3092,102 @@ function playJamendoTrack(trackId) {
     const track = state.jamendo.tracks.find(t => t.id === trackId);
     if (!track) return;
     
-    if (state.jamendo.currentTrack?.id === trackId && state.jamendo.isPlaying) {
-        // 暂停当前播放
-        if (state.jamendo.audioElement) {
-            state.jamendo.audioElement.pause();
+    // 如果点击的是当前正在播放的歌曲
+    if (state.jamendo.currentTrack?.id === trackId) {
+        if (state.jamendo.isPlaying) {
+            // 暂停播放
+            if (state.jamendo.audioElement) {
+                state.jamendo.audioElement.pause();
+                state.jamendo.isPlaying = false;
+            }
+        } else {
+            // 恢复播放
+            if (state.jamendo.audioElement) {
+                state.jamendo.audioElement.play().then(() => {
+                    state.jamendo.isPlaying = true;
+                    renderJamendoTracks();
+                }).catch(err => {
+                    console.error('恢复播放失败:', err);
+                    showToast('恢复播放失败', 'error');
+                });
+            }
         }
-        state.jamendo.isPlaying = false;
-    } else {
-        // 播放新曲目或恢复播放
-        if (state.jamendo.audioElement) {
-            state.jamendo.audioElement.pause();
-        }
-        
-        state.jamendo.currentTrack = track;
-        state.jamendo.audioElement = new Audio(track.audio);
-        state.jamendo.audioElement.volume = 0.7;
-        
-        state.jamendo.audioElement.play().then(() => {
-            state.jamendo.isPlaying = true;
-            renderJamendoTracks();
-            showAudioPlayer(track);
-        }).catch(err => {
-            console.error('播放失败:', err);
-            showToast('播放失败，请重试', 'error');
-        });
-        
-        state.jamendo.audioElement.onended = () => {
-            state.jamendo.isPlaying = false;
-            renderJamendoTracks();
-            hideAudioPlayer();
-        };
+        renderJamendoTracks();
+        return;
     }
     
-    renderJamendoTracks();
+    // 播放新曲目
+    // 先停止当前播放
+    if (state.jamendo.audioElement) {
+        state.jamendo.audioElement.pause();
+        state.jamendo.audioElement = null;
+    }
+    
+    state.jamendo.currentTrack = track;
+    state.jamendo.audioElement = new Audio(track.audio);
+    state.jamendo.audioElement.volume = 0.7;
+    
+    // 添加事件监听
+    state.jamendo.audioElement.onloadedmetadata = () => {
+        state.jamendo.duration = state.jamendo.audioElement.duration;
+        renderJamendoTracks();
+    };
+    
+    state.jamendo.audioElement.ontimeupdate = () => {
+        state.jamendo.currentTime = state.jamendo.audioElement.currentTime;
+        updateTrackProgress();
+    };
+    
+    state.jamendo.audioElement.onplay = () => {
+        state.jamendo.isPlaying = true;
+        startProgressUpdate();
+        renderJamendoTracks();
+    };
+    
+    state.jamendo.audioElement.onpause = () => {
+        state.jamendo.isPlaying = false;
+        stopProgressUpdate();
+        renderJamendoTracks();
+    };
+    
+    state.jamendo.audioElement.onended = () => {
+        state.jamendo.isPlaying = false;
+        state.jamendo.currentTime = 0;
+        state.jamendo.duration = 0;
+        state.jamendo.currentTrack = null;
+        stopProgressUpdate();
+        if (state.jamendo.audioElement) {
+            state.jamendo.audioElement = null;
+        }
+        renderJamendoTracks();
+        hideAudioPlayer();
+    };
+    
+    state.jamendo.audioElement.onerror = () => {
+        state.jamendo.isPlaying = false;
+        state.jamendo.currentTime = 0;
+        state.jamendo.duration = 0;
+        state.jamendo.currentTrack = null;
+        stopProgressUpdate();
+        if (state.jamendo.audioElement) {
+            state.jamendo.audioElement = null;
+        }
+        renderJamendoTracks();
+        showToast('播放失败，请重试', 'error');
+    };
+    
+    state.jamendo.audioElement.play().then(() => {
+        state.jamendo.isPlaying = true;
+        renderJamendoTracks();
+        showAudioPlayer(track);
+    }).catch(err => {
+        console.error('播放失败:', err);
+        state.jamendo.isPlaying = false;
+        state.jamendo.currentTrack = null;
+        state.jamendo.audioElement = null;
+        renderJamendoTracks();
+        showToast('播放失败，请重试', 'error');
+    });
 }
 
 function previewJamendoTrack(trackId) {
@@ -2864,7 +3196,9 @@ function previewJamendoTrack(trackId) {
 
 function showAudioPlayer(track) {
     // 简单的播放提示
-    showToast(`正在播放: ${track.name} - ${track.artistName}`, 'success');
+    const trackName = track.name || '未知歌曲';
+    const artistName = track.artistName || '未知艺术家';
+    showToast(`正在播放: ${trackName} - ${artistName}`, 'success');
 }
 
 function hideAudioPlayer() {
@@ -2877,7 +3211,10 @@ function stopJamendoPlayback() {
         state.jamendo.audioElement = null;
     }
     state.jamendo.isPlaying = false;
+    state.jamendo.currentTime = 0;
+    state.jamendo.duration = 0;
     state.jamendo.currentTrack = null;
+    stopProgressUpdate();
     renderJamendoTracks();
 }
 
