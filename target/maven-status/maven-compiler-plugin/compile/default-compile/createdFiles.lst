@@ -88,6 +88,8 @@ com/aisinger/entity/MusicSegment$MusicSegmentBuilder.class
 com/aisinger/dto/LyricsGenerateResponse$LyricsGenerateResponseBuilder.class
 com/aisinger/entity/JamendoConfig$JamendoConfigBuilder.class
 com/aisinger/dto/JamendoResponse.class
+com/aisinger/config/WebConfig.class
+com/aisinger/controller/SynthesisController$PreviewRequest.class
 com/aisinger/repository/SongRepository.class
 com/aisinger/service/SingingConfigService.class
 com/aisinger/controller/JamendoController.class
@@ -106,6 +108,7 @@ com/aisinger/entity/SongTemplate.class
 com/aisinger/config/AiSingerProperties.class
 com/aisinger/config/AiSingerProperties$VoiceConfig.class
 com/aisinger/service/SongService.class
+com/aisinger/synthesis/engine/OpenAiTtsEngine.class
 com/aisinger/entity/Emotion$EmotionBuilder.class
 com/aisinger/entity/LyricsAnnotation.class
 com/aisinger/entity/SongTemplate$SongTemplateBuilder.class

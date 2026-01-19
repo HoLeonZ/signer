@@ -1162,11 +1162,85 @@ function renderTechniquesCards() {
                 </div>
             </div>
             <div class="config-card-footer">
+                <button class="btn-preview" onclick="previewTechnique(${tech.id})">🔊 试听</button>
                 <button class="btn-edit" onclick="editTechnique(${tech.id})">✏️ 编辑</button>
                 <button class="btn-delete" onclick="confirmDeleteTechnique(${tech.id})">🗑️ 删除</button>
             </div>
         </div>
     `).join('');
+}
+
+/**
+ * 试听技巧配置效果
+ */
+async function previewTechnique(id) {
+    const technique = state.techniques.find(t => t.id === id);
+    if (!technique) return;
+    
+    showToast('正在生成试听...', 'info');
+    
+    try {
+        const response = await fetch(`${API_BASE}/synthesis/preview`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                text: `这是${technique.name}技巧的试听效果。${technique.description || ''}`,
+                vibratoDepth: technique.vibratoDepth || 50,
+                vibratoRate: technique.vibratoRate || 50,
+                breathiness: technique.breathiness || 30,
+                tension: technique.tension || 50,
+                brightness: technique.brightness || 50,
+                techniqueId: technique.id
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data.audioUrl) {
+            playPreviewAudio(data.data.audioUrl, `技巧: ${technique.name}`);
+        } else {
+            showToast(data.message || '试听生成失败，请配置OpenAI API Key', 'error');
+        }
+    } catch (error) {
+        console.error('试听失败:', error);
+        showToast('试听失败，请检查网络或API配置', 'error');
+    }
+}
+
+/**
+ * 播放预览音频
+ */
+function playPreviewAudio(audioUrl, title) {
+    // 创建或获取音频播放器
+    let player = document.getElementById('preview-audio-player');
+    if (!player) {
+        player = document.createElement('div');
+        player.id = 'preview-audio-player';
+        player.className = 'preview-audio-player';
+        player.innerHTML = `
+            <div class="player-header">
+                <span class="player-title"></span>
+                <button class="player-close" onclick="closePreviewPlayer()">×</button>
+            </div>
+            <audio controls autoplay></audio>
+        `;
+        document.body.appendChild(player);
+    }
+    
+    player.querySelector('.player-title').textContent = title;
+    const audio = player.querySelector('audio');
+    audio.src = audioUrl;
+    audio.play();
+    player.classList.add('show');
+}
+
+function closePreviewPlayer() {
+    const player = document.getElementById('preview-audio-player');
+    if (player) {
+        const audio = player.querySelector('audio');
+        audio.pause();
+        player.classList.remove('show');
+    }
 }
 
 // ========================================
@@ -1213,11 +1287,46 @@ function renderEmotionsCards() {
                 </div>
             </div>
             <div class="config-card-footer">
+                <button class="btn-preview" onclick="previewEmotion(${emotion.id})">🔊 试听</button>
                 <button class="btn-edit" onclick="editEmotion(${emotion.id})">✏️ 编辑</button>
                 <button class="btn-delete" onclick="confirmDeleteEmotion(${emotion.id})">🗑️ 删除</button>
             </div>
         </div>
     `).join('');
+}
+
+/**
+ * 试听情绪配置效果
+ */
+async function previewEmotion(id) {
+    const emotion = state.emotions.find(e => e.id === id);
+    if (!emotion) return;
+    
+    showToast('正在生成试听...', 'info');
+    
+    try {
+        const response = await fetch(`${API_BASE}/synthesis/preview`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                text: `这是${emotion.name}情绪的试听效果。${emotion.description || ''}`,
+                emotionIntensity: emotion.intensity || 50,
+                tempoFactor: emotion.tempoFactor || 1.0,
+                emotionId: emotion.id
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data.audioUrl) {
+            playPreviewAudio(data.data.audioUrl, `情绪: ${emotion.name}`);
+        } else {
+            showToast(data.message || '试听生成失败，请配置OpenAI API Key', 'error');
+        }
+    } catch (error) {
+        console.error('试听失败:', error);
+        showToast('试听失败，请检查网络或API配置', 'error');
+    }
 }
 
 // ========================================

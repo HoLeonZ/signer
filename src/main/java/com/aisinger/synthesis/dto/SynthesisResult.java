@@ -65,6 +65,16 @@ public class SynthesisResult {
     private Long processingTimeMs;
     
     /**
+     * 消息（成功或提示信息）
+     */
+    private String message;
+    
+    /**
+     * 额外元数据
+     */
+    private java.util.Map<String, Object> metadata;
+    
+    /**
      * 创建成功结果
      */
     public static SynthesisResult success(String audioUrl, String engine, long processingTimeMs) {

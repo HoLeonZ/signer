@@ -122,6 +122,12 @@ public class SynthesisRequest {
     @Builder.Default
     private Double tempoFactor = 1.0;
     
+    /**
+     * 性别因子 0-100 (0=女性化, 100=男性化)
+     */
+    @Builder.Default
+    private Integer genderFactor = 50;
+    
     // ==================== 音频参数 ====================
     
     /**

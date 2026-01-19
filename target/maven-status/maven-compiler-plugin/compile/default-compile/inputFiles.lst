@@ -17,6 +17,7 @@
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/entity/SynthesisProviderConfig.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/service/SingingConfigService.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/controller/SegmentController.java
+/Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/config/WebConfig.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/repository/SingerRepository.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/config/LlmProperties.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/entity/Song.java
@@ -40,6 +41,7 @@
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/controller/SingingConfigController.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/service/SongService.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/repository/SongRepository.java
+/Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/synthesis/engine/OpenAiTtsEngine.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/controller/LlmController.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/synthesis/dto/SynthesisResult.java
 /Users/zhl/Documents/cursor_projects/AISinger/src/main/java/com/aisinger/synthesis/dto/SynthesisRequest.java
