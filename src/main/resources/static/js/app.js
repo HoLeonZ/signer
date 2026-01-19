@@ -5,6 +5,121 @@
 // API基础URL
 const API_BASE = '/api';
 
+// ==================== 本地存储工具函数 ====================
+const LocalStorageManager = {
+    // 存储键名
+    KEYS: {
+        LLM_CONFIGS: 'ai_singer_llm_configs',
+        SYNTHESIS_PROVIDERS: 'ai_singer_synthesis_providers',
+        LAST_SYNC_TIME: 'ai_singer_last_sync_time'
+    },
+    
+    /**
+     * 保存LLM配置到本地存储
+     */
+    saveLlmConfigs(configs) {
+        try {
+            const data = {
+                configs: configs,
+                timestamp: Date.now(),
+                version: '1.0'
+            };
+            localStorage.setItem(this.KEYS.LLM_CONFIGS, JSON.stringify(data));
+            console.log('LLM配置已保存到本地存储:', configs.length, '个配置');
+            return true;
+        } catch (error) {
+            console.error('保存LLM配置到本地存储失败:', error);
+            return false;
+        }
+    },
+    
+    /**
+     * 从本地存储加载LLM配置
+     */
+    loadLlmConfigs() {
+        try {
+            const data = localStorage.getItem(this.KEYS.LLM_CONFIGS);
+            if (data) {
+                const parsed = JSON.parse(data);
+                console.log('从本地存储加载LLM配置:', parsed.configs?.length || 0, '个配置');
+                return parsed.configs || [];
+            }
+            return null;
+        } catch (error) {
+            console.error('从本地存储加载LLM配置失败:', error);
+            return null;
+        }
+    },
+    
+    /**
+     * 保存语音合成服务配置到本地存储
+     */
+    saveSynthesisProviders(providers) {
+        try {
+            const data = {
+                providers: providers,
+                timestamp: Date.now(),
+                version: '1.0'
+            };
+            localStorage.setItem(this.KEYS.SYNTHESIS_PROVIDERS, JSON.stringify(data));
+            console.log('语音合成服务配置已保存到本地存储:', providers.length, '个配置');
+            return true;
+        } catch (error) {
+            console.error('保存语音合成服务配置到本地存储失败:', error);
+            return false;
+        }
+    },
+    
+    /**
+     * 从本地存储加载语音合成服务配置
+     */
+    loadSynthesisProviders() {
+        try {
+            const data = localStorage.getItem(this.KEYS.SYNTHESIS_PROVIDERS);
+            if (data) {
+                const parsed = JSON.parse(data);
+                console.log('从本地存储加载语音合成服务配置:', parsed.providers?.length || 0, '个配置');
+                return parsed.providers || [];
+            }
+            return null;
+        } catch (error) {
+            console.error('从本地存储加载语音合成服务配置失败:', error);
+            return null;
+        }
+    },
+    
+    /**
+     * 清除所有本地存储的配置
+     */
+    clearAll() {
+        try {
+            localStorage.removeItem(this.KEYS.LLM_CONFIGS);
+            localStorage.removeItem(this.KEYS.SYNTHESIS_PROVIDERS);
+            localStorage.removeItem(this.KEYS.LAST_SYNC_TIME);
+            console.log('已清除所有本地存储的配置');
+            return true;
+        } catch (error) {
+            console.error('清除本地存储失败:', error);
+            return false;
+        }
+    },
+    
+    /**
+     * 获取本地存储的配置信息
+     */
+    getStorageInfo() {
+        const llmData = localStorage.getItem(this.KEYS.LLM_CONFIGS);
+        const synthData = localStorage.getItem(this.KEYS.SYNTHESIS_PROVIDERS);
+        
+        return {
+            hasLlmConfigs: !!llmData,
+            hasSynthesisProviders: !!synthData,
+            llmConfigsCount: llmData ? JSON.parse(llmData).configs?.length || 0 : 0,
+            synthesisProvidersCount: synthData ? JSON.parse(synthData).providers?.length || 0 : 0
+        };
+    }
+};
+
 // 全局状态
 const state = {
     singers: [],
@@ -2021,16 +2136,48 @@ async function refreshSettings() {
 // ==================== LLM配置管理 ====================
 
 async function loadLlmConfigs() {
+    // 首先尝试从本地存储加载
+    const localConfigs = LocalStorageManager.loadLlmConfigs();
+    if (localConfigs && localConfigs.length > 0) {
+        console.log('使用本地存储的LLM配置');
+        llmConfigs = localConfigs;
+        renderLlmConfigList();
+    }
+    
+    // 然后从服务器加载（用于同步和更新）
     try {
         const response = await fetch(`${API_BASE}/config/llm`);
         const data = await response.json();
         
-        if (data.success) {
+        if (data.success && data.data) {
+            // 只有在成功获取数据时才更新
             llmConfigs = data.data || [];
+            // 保存到本地存储
+            LocalStorageManager.saveLlmConfigs(llmConfigs);
             renderLlmConfigList();
+        } else {
+            console.error('加载LLM配置失败:', data.message);
+            // 如果已有本地数据，保留本地数据
+            if (llmConfigs.length === 0) {
+                showToast('加载配置失败: ' + (data.message || '未知错误'), 'error');
+                llmConfigs = [];
+                renderLlmConfigList();
+            } else {
+                // 有本地数据时，静默失败，保留当前显示
+                console.warn('服务器加载失败，使用本地存储的配置');
+            }
         }
     } catch (error) {
         console.error('加载LLM配置失败:', error);
+        // 如果已有本地数据，保留本地数据
+        if (llmConfigs.length === 0) {
+            showToast('加载配置失败，请检查网络连接', 'error');
+            llmConfigs = [];
+            renderLlmConfigList();
+        } else {
+            // 有本地数据时，静默失败，保留当前显示
+            console.warn('服务器加载失败，使用本地存储的配置:', error);
+        }
     }
 }
 
@@ -2080,7 +2227,22 @@ function editLlmConfig(id) {
     document.getElementById('llm-config-id').value = config.id;
     document.getElementById('llm-config-provider').value = config.provider;
     document.getElementById('llm-display-name').value = config.displayName || '';
-    document.getElementById('llm-api-key').value = ''; // 安全起见不显示密钥
+    
+    // 处理API密钥：如果已配置，显示占位符；否则留空
+    const apiKeyInput = document.getElementById('llm-api-key');
+    const hasApiKey = config.apiKey && config.apiKey.length > 0;
+    if (hasApiKey) {
+        // 显示占位符，表示密钥已配置（安全起见不显示真实密钥）
+        apiKeyInput.value = '';
+        apiKeyInput.placeholder = '•••••••••••• (已配置，留空不修改)';
+        // 添加一个data属性标记，用于保存时判断
+        apiKeyInput.setAttribute('data-has-key', 'true');
+    } else {
+        apiKeyInput.value = '';
+        apiKeyInput.placeholder = '输入API密钥';
+        apiKeyInput.removeAttribute('data-has-key');
+    }
+    
     document.getElementById('llm-api-url').value = config.apiUrl || '';
     document.getElementById('llm-model-name').value = config.modelName || '';
     document.getElementById('llm-temperature').value = config.temperature || 0.8;
@@ -2124,12 +2286,60 @@ async function saveLlmConfig(event) {
         
         const data = await response.json();
         
+        console.log('保存LLM配置响应:', data);
+        
         if (data.success) {
-            closeModal('modal-llm-config');
-            await loadLlmConfigs();
             showToast('LLM配置已保存', 'success');
+            // 更新本地数据，避免重新加载时数据丢失
+            const updatedConfig = data.data;
+            console.log('更新后的LLM配置数据:', updatedConfig);
+            
+            if (updatedConfig && updatedConfig.id) {
+                const index = llmConfigs.findIndex(c => c.id === updatedConfig.id);
+                if (index >= 0) {
+                    // 合并更新，保留原有数据中可能缺失的字段
+                    const existing = llmConfigs[index];
+                    // 如果用户输入了新密钥，使用新密钥；否则保留原有密钥
+                    const newApiKey = document.getElementById('llm-api-key').value;
+                    const finalApiKey = (newApiKey && newApiKey.length > 0) 
+                        ? newApiKey 
+                        : (updatedConfig.apiKey || existing.apiKey);
+                    
+                    llmConfigs[index] = { 
+                        ...existing, 
+                        ...updatedConfig,
+                        // 确保关键字段存在
+                        id: updatedConfig.id,
+                        provider: updatedConfig.provider || existing.provider,
+                        displayName: updatedConfig.displayName || existing.displayName,
+                        apiKey: finalApiKey, // 使用最终确定的密钥
+                        apiUrl: updatedConfig.apiUrl || existing.apiUrl,
+                        modelName: updatedConfig.modelName || existing.modelName
+                    };
+                    console.log('合并后的LLM配置数据 (apiKey已保留):', {
+                        ...llmConfigs[index],
+                        apiKey: llmConfigs[index].apiKey ? '***已配置***' : '未配置'
+                    });
+                } else {
+                    llmConfigs.push(updatedConfig);
+                }
+                // 保存到本地存储
+                LocalStorageManager.saveLlmConfigs(llmConfigs);
+                // 立即重新渲染列表
+                renderLlmConfigList();
+            }
+            closeModal('modal-llm-config');
+            // 延迟重新加载以确保数据同步，但即使失败也保留当前数据
+            setTimeout(async () => {
+                try {
+                    await loadLlmConfigs();
+                } catch (error) {
+                    console.error('重新加载LLM配置失败，但保留当前数据:', error);
+                }
+            }, 300);
         } else {
             showToast(data.message || '保存失败', 'error');
+            console.error('保存LLM配置失败:', data);
         }
     } catch (error) {
         console.error('保存LLM配置失败:', error);
@@ -2146,6 +2356,10 @@ async function activateLlmConfig(id) {
         const data = await response.json();
         
         if (data.success) {
+            // 更新本地配置的激活状态
+            llmConfigs.forEach(c => c.isActive = (c.id == id));
+            // 保存到本地存储
+            LocalStorageManager.saveLlmConfigs(llmConfigs);
             await loadLlmConfigs();
             showToast(`已切换到 ${data.data.displayName}`, 'success');
         } else {
@@ -2265,26 +2479,48 @@ async function settingsSwitchLlm(provider) {
 let synthesisProviders = [];
 
 async function loadSynthesisProviders() {
+    // 首先尝试从本地存储加载
+    const localProviders = LocalStorageManager.loadSynthesisProviders();
+    if (localProviders && localProviders.length > 0) {
+        console.log('使用本地存储的语音合成服务配置');
+        synthesisProviders = localProviders;
+        renderSynthesisProviderList();
+    }
+    
+    // 然后从服务器加载（用于同步和更新）
     try {
         const response = await fetch(`${API_BASE}/synthesis-providers`);
         const data = await response.json();
         
-        if (data.success) {
+        if (data.success && data.data) {
+            // 只有在成功获取数据时才更新
             synthesisProviders = data.data || [];
+            // 保存到本地存储
+            LocalStorageManager.saveSynthesisProviders(synthesisProviders);
             renderSynthesisProviderList();
         } else {
             console.error('加载语音合成服务配置失败:', data.message);
-            showToast('加载配置失败: ' + (data.message || '未知错误'), 'error');
-            // 即使失败也渲染空列表，避免页面元素消失
-            synthesisProviders = [];
-            renderSynthesisProviderList();
+            // 如果已有本地数据，保留本地数据
+            if (synthesisProviders.length === 0) {
+                showToast('加载配置失败: ' + (data.message || '未知错误'), 'error');
+                synthesisProviders = [];
+                renderSynthesisProviderList();
+            } else {
+                // 有本地数据时，静默失败，保留当前显示
+                console.warn('服务器加载失败，使用本地存储的配置');
+            }
         }
     } catch (error) {
         console.error('加载语音合成服务配置失败:', error);
-        showToast('加载配置失败，请检查网络连接', 'error');
-        // 即使失败也渲染空列表，避免页面元素消失
-        synthesisProviders = [];
-        renderSynthesisProviderList();
+        // 如果已有本地数据，保留本地数据
+        if (synthesisProviders.length === 0) {
+            showToast('加载配置失败，请检查网络连接', 'error');
+            synthesisProviders = [];
+            renderSynthesisProviderList();
+        } else {
+            // 有本地数据时，静默失败，保留当前显示
+            console.warn('服务器加载失败，使用本地存储的配置:', error);
+        }
     }
 }
 
@@ -2370,20 +2606,33 @@ function renderSynthesisProviderList() {
         `;
     }
     
-    container.innerHTML = html;
+    // 确保容器始终有内容，避免元素消失
+    if (container) {
+        container.innerHTML = html;
+    } else {
+        console.error('synthesis-provider-list 容器不存在');
+    }
 }
 
 function renderProviderCard(provider, serviceIcons) {
+    // 防御性检查，确保provider对象存在且有效
+    if (!provider || !provider.id) {
+        console.error('无效的provider数据:', provider);
+        return '';
+    }
+    
     const hasApiKey = provider.apiKey && provider.apiKey.length > 0;
     const statusClass = provider.enabled && hasApiKey ? 'configured' : 'pending';
     const statusText = provider.enabled && hasApiKey ? '已配置' : '待配置';
     const activeClass = provider.isActive ? 'active' : '';
     const serviceIcon = serviceIcons[provider.serviceType] || '🔧';
+    const displayName = provider.displayName || provider.provider || '未知服务';
+    const description = provider.description ? provider.description.substring(0, 50) + '...' : '';
     
     return `
         <div class="provider-card ${statusClass} ${activeClass}" onclick="editSynthesisProvider(${provider.id})">
             <div class="provider-card-header">
-                <span class="provider-name">${provider.displayName}</span>
+                <span class="provider-name">${displayName}</span>
                 <span class="provider-service-type">${serviceIcon}</span>
             </div>
             <div class="provider-card-status">
@@ -2391,7 +2640,7 @@ function renderProviderCard(provider, serviceIcons) {
                 ${provider.isActive ? '<span class="active-badge">✓ 使用中</span>' : ''}
             </div>
             <div class="provider-card-info">
-                ${provider.description ? `<small>${provider.description.substring(0, 50)}...</small>` : ''}
+                ${description ? `<small>${description}</small>` : ''}
             </div>
             <div class="provider-card-actions">
                 <button class="btn-link" onclick="event.stopPropagation(); editSynthesisProvider(${provider.id})">配置</button>
@@ -2473,23 +2722,60 @@ async function saveSynthesisProvider(event) {
         
         const data = await response.json();
         
+        console.log('保存配置响应:', data);
+        
         if (data.success) {
             showToast('配置已保存', 'success');
             // 更新本地数据，避免重新加载时数据丢失
             const updatedProvider = data.data;
-            const index = synthesisProviders.findIndex(p => p.id === updatedProvider.id);
-            if (index >= 0) {
-                synthesisProviders[index] = updatedProvider;
+            console.log('更新后的provider数据:', updatedProvider);
+            console.log('当前synthesisProviders数量:', synthesisProviders.length);
+            
+            if (updatedProvider && updatedProvider.id) {
+                const index = synthesisProviders.findIndex(p => p.id === updatedProvider.id);
+                console.log('找到的索引:', index);
+                
+                if (index >= 0) {
+                    // 合并更新，保留原有数据中可能缺失的字段（如description等）
+                    const existing = synthesisProviders[index];
+                    synthesisProviders[index] = { 
+                        ...existing, 
+                        ...updatedProvider,
+                        // 确保关键字段存在
+                        id: updatedProvider.id,
+                        provider: updatedProvider.provider || existing.provider,
+                        displayName: updatedProvider.displayName || existing.displayName,
+                        providerType: updatedProvider.providerType || existing.providerType,
+                        serviceType: updatedProvider.serviceType || existing.serviceType,
+                        description: updatedProvider.description || existing.description
+                    };
+                    console.log('合并后的数据:', synthesisProviders[index]);
+                } else {
+                    // 如果找不到，添加到列表
+                    console.log('未找到现有配置，添加新配置');
+                    synthesisProviders.push(updatedProvider);
+                }
+                // 保存到本地存储
+                LocalStorageManager.saveSynthesisProviders(synthesisProviders);
+                // 立即重新渲染列表
+                console.log('重新渲染列表，当前数据量:', synthesisProviders.length);
+                renderSynthesisProviderList();
             } else {
-                synthesisProviders.push(updatedProvider);
+                console.warn('保存成功但返回数据格式异常:', data);
+                // 即使数据格式异常，也尝试重新加载
             }
-            // 重新渲染列表
-            renderSynthesisProviderList();
             closeModal('modal-synthesis-provider');
-            // 延迟重新加载以确保数据同步
-            setTimeout(() => {
-                loadSynthesisProviders();
-            }, 500);
+            // 延迟重新加载以确保数据同步，但即使失败也保留当前数据
+            setTimeout(async () => {
+                try {
+                    console.log('开始重新加载配置...');
+                    await loadSynthesisProviders();
+                    console.log('重新加载完成，当前数据量:', synthesisProviders.length);
+                } catch (error) {
+                    console.error('重新加载配置失败，但保留当前数据:', error);
+                    // 不显示错误提示，因为数据已经更新了
+                }
+            }, 300);
         } else {
             showToast(data.message || '保存失败', 'error');
             console.error('保存配置失败:', data);

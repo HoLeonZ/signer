@@ -60,30 +60,73 @@ public class SynthesisProviderConfigService {
         SynthesisProviderConfig existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("配置不存在: " + id));
         
-        existing.setDisplayName(config.getDisplayName());
-        existing.setProviderType(config.getProviderType());
-        existing.setServiceType(config.getServiceType());
-        existing.setApiKey(config.getApiKey());
-        existing.setApiKeySecondary(config.getApiKeySecondary());
-        existing.setApiUrl(config.getApiUrl());
-        existing.setRegion(config.getRegion());
-        existing.setDefaultVoice(config.getDefaultVoice());
-        existing.setAvailableVoices(config.getAvailableVoices());
-        existing.setSampleRate(config.getSampleRate());
-        existing.setOutputFormat(config.getOutputFormat());
-        existing.setEnabled(config.getEnabled());
-        existing.setTimeoutSeconds(config.getTimeoutSeconds());
-        existing.setMaxConcurrent(config.getMaxConcurrent());
-        existing.setRateLimit(config.getRateLimit());
-        existing.setQuota(config.getQuota());
-        existing.setPricingInfo(config.getPricingInfo());
-        existing.setWebsiteUrl(config.getWebsiteUrl());
-        existing.setDocsUrl(config.getDocsUrl());
-        existing.setDescription(config.getDescription());
-        existing.setSortOrder(config.getSortOrder());
+        // 只更新非null字段，避免覆盖原有数据
+        if (config.getDisplayName() != null) {
+            existing.setDisplayName(config.getDisplayName());
+        }
+        if (config.getProviderType() != null) {
+            existing.setProviderType(config.getProviderType());
+        }
+        if (config.getServiceType() != null) {
+            existing.setServiceType(config.getServiceType());
+        }
+        if (config.getApiKey() != null) {
+            existing.setApiKey(config.getApiKey());
+        }
+        if (config.getApiKeySecondary() != null) {
+            existing.setApiKeySecondary(config.getApiKeySecondary());
+        }
+        if (config.getApiUrl() != null) {
+            existing.setApiUrl(config.getApiUrl());
+        }
+        if (config.getRegion() != null) {
+            existing.setRegion(config.getRegion());
+        }
+        if (config.getDefaultVoice() != null) {
+            existing.setDefaultVoice(config.getDefaultVoice());
+        }
+        if (config.getAvailableVoices() != null) {
+            existing.setAvailableVoices(config.getAvailableVoices());
+        }
+        if (config.getSampleRate() != null) {
+            existing.setSampleRate(config.getSampleRate());
+        }
+        if (config.getOutputFormat() != null) {
+            existing.setOutputFormat(config.getOutputFormat());
+        }
+        if (config.getEnabled() != null) {
+            existing.setEnabled(config.getEnabled());
+        }
+        if (config.getTimeoutSeconds() != null) {
+            existing.setTimeoutSeconds(config.getTimeoutSeconds());
+        }
+        if (config.getMaxConcurrent() != null) {
+            existing.setMaxConcurrent(config.getMaxConcurrent());
+        }
+        if (config.getRateLimit() != null) {
+            existing.setRateLimit(config.getRateLimit());
+        }
+        if (config.getQuota() != null) {
+            existing.setQuota(config.getQuota());
+        }
+        if (config.getPricingInfo() != null) {
+            existing.setPricingInfo(config.getPricingInfo());
+        }
+        if (config.getWebsiteUrl() != null) {
+            existing.setWebsiteUrl(config.getWebsiteUrl());
+        }
+        if (config.getDocsUrl() != null) {
+            existing.setDocsUrl(config.getDocsUrl());
+        }
+        if (config.getDescription() != null) {
+            existing.setDescription(config.getDescription());
+        }
+        if (config.getSortOrder() != null) {
+            existing.setSortOrder(config.getSortOrder());
+        }
         
         // 更新配置状态
-        if (config.getApiKey() != null && !config.getApiKey().isEmpty()) {
+        if (existing.getApiKey() != null && !existing.getApiKey().isEmpty()) {
             existing.setConfigStatus("configured");
         } else {
             existing.setConfigStatus("pending");

@@ -138,16 +138,38 @@ public class LlmConfigService {
         LlmConfig existing = llmConfigRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("配置不存在: " + id));
         
-        existing.setDisplayName(newConfig.getDisplayName());
-        existing.setApiKey(newConfig.getApiKey());
-        existing.setApiUrl(newConfig.getApiUrl());
-        existing.setModelName(newConfig.getModelName());
-        existing.setEnabled(newConfig.getEnabled());
-        existing.setTemperature(newConfig.getTemperature());
-        existing.setMaxTokens(newConfig.getMaxTokens());
-        existing.setTimeoutSeconds(newConfig.getTimeoutSeconds());
-        existing.setDescription(newConfig.getDescription());
-        existing.setSortOrder(newConfig.getSortOrder());
+        // 只更新非null字段，避免覆盖原有数据（特别是apiKey）
+        if (newConfig.getDisplayName() != null) {
+            existing.setDisplayName(newConfig.getDisplayName());
+        }
+        // apiKey 特殊处理：只有明确提供时才更新（前端只在输入新密钥时发送）
+        if (newConfig.getApiKey() != null && !newConfig.getApiKey().isEmpty()) {
+            existing.setApiKey(newConfig.getApiKey());
+        }
+        if (newConfig.getApiUrl() != null) {
+            existing.setApiUrl(newConfig.getApiUrl());
+        }
+        if (newConfig.getModelName() != null) {
+            existing.setModelName(newConfig.getModelName());
+        }
+        if (newConfig.getEnabled() != null) {
+            existing.setEnabled(newConfig.getEnabled());
+        }
+        if (newConfig.getTemperature() != null) {
+            existing.setTemperature(newConfig.getTemperature());
+        }
+        if (newConfig.getMaxTokens() != null) {
+            existing.setMaxTokens(newConfig.getMaxTokens());
+        }
+        if (newConfig.getTimeoutSeconds() != null) {
+            existing.setTimeoutSeconds(newConfig.getTimeoutSeconds());
+        }
+        if (newConfig.getDescription() != null) {
+            existing.setDescription(newConfig.getDescription());
+        }
+        if (newConfig.getSortOrder() != null) {
+            existing.setSortOrder(newConfig.getSortOrder());
+        }
         
         return llmConfigRepository.save(existing);
     }
