@@ -1,0 +1,517 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-singer
+  
+  datasource:
+    url: jdbc:h2:mem:aisingerdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+# ===========================================
+# LLM配置 - 用于歌词生成
+# ===========================================
+llm:
+  # 当前启用的提供商: qwen, openai, gemini
+  provider: qwen
+  
+  # 阿里通义千问配置
+  qwen:
+    api-key: ${QWEN_API_KEY:your-qwen-api-key}
+    api-url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+    model: qwen-turbo
+  
+  # OpenAI配置
+  openai:
+    api-key: ${OPENAI_API_KEY:your-openai-api-key}
+    api-url: https://api.openai.com/v1/chat/completions
+    model: gpt-3.5-turbo
+  
+  # Google Gemini配置
+  gemini:
+    api-key: ${GEMINI_API_KEY:your-gemini-api-key}
+    api-url: https://generativelanguage.googleapis.com/v1beta/models
+    model: gemini-pro
+
+# ===========================================
+# 声音合成引擎配置
+# ===========================================
+synthesis:
+  # 当前启用的引擎: sovits, vits, diffsvc, mock
+  active-engine: mock
+  
+  # So-VITS-SVC 配置
+  sovits:
+    enabled: false
+    api-url: ${SOVITS_API_URL:http://localhost:5000}
+    models-path: ${SOVITS_MODELS_PATH:/models/sovits}
+    sample-rate: 44100
+    hop-size: 512
+    default-speaker: 0
+    
+  # VITS 配置  
+  vits:
+    enabled: false
+    api-url: ${VITS_API_URL:http://localhost:5001}
+    models-path: ${VITS_MODELS_PATH:/models/vits}
+    sample-rate: 22050
+    
+  # Diff-SVC 配置
+  diffsvc:
+    enabled: false
+    api-url: ${DIFFSVC_API_URL:http://localhost:5002}
+    models-path: ${DIFFSVC_MODELS_PATH:/models/diffsvc}
+    sample-rate: 44100
+    diffusion-steps: 100
+    
+  # Mock引擎 - 用于开发测试
+  mock:
+    enabled: true
+    delay-ms: 1000
+
+# ===========================================
+# AI歌手配置
+# ===========================================
+ai-singer:
+  
+  # 预置歌手声库配置
+  voices:
+    - id: chenxi
+      name: 晨曦
+      name-en: Chenxi
+      description: 温暖柔和的女声，擅长抒情慢歌
+      voice-type: 女声
+      voice-style: 抒情
+      voice-character: 温暖,柔和,细腻
+      suitable-genres: 流行,抒情,民谣,R&B
+      vocal-range:
+        low: A3
+        high: E5
+        tessitura-low: C4
+        tessitura-high: C5
+      languages:
+        primary: 中文
+        supported: 中文,英文
+      # 声音合成模型配置
+      model:
+        engine: sovits
+        path: /models/sovits/chenxi_v2.pth
+        config: /models/sovits/chenxi_config.json
+        speaker-id: 0
+      # 默认合成参数
+      defaults:
+        vibrato-depth: 40
+        vibrato-rate: 50
+        breathiness: 45
+        tension: 50
+        brightness: 55
+        gender-factor: 25
+      # 元数据
+      avatar-url: /avatars/chenxi.png
+      tags: 甜美,治愈,抒情
+      category: 虚拟歌手
+      license-type: 免费
+      enabled: true
+      sort-order: 1
+      
+    - id: xingchen
+      name: 星辰
+      name-en: Xingchen
+      description: 清澈空灵的女声，适合古风和电子曲风
+      voice-type: 女声
+      voice-style: 古风
+      voice-character: 空灵,清澈,仙气
+      suitable-genres: 古风,电子,流行,仙侠
+      vocal-range:
+        low: B3
+        high: F5
+        tessitura-low: D4
+        tessitura-high: D5
+      languages:
+        primary: 中文
+        supported: 中文,日语
+      model:
+        engine: vits
+        path: /models/vits/xingchen.pth
+        config: /models/vits/xingchen_config.json
+        speaker-id: 0
+      defaults:
+        vibrato-depth: 35
+        vibrato-rate: 45
+        breathiness: 30
+        tension: 45
+        brightness: 70
+        gender-factor: 20
+      avatar-url: /avatars/xingchen.png
+      tags: 空灵,古风,仙气
+      category: 虚拟歌手
+      license-type: 免费
+      enabled: true
+      sort-order: 2
+      
+    - id: yexing
+      name: 夜行
+      name-en: Yexing
+      description: 低沉磁性的男声，擅长摇滚和流行
+      voice-type: 男声
+      voice-style: 摇滚
+      voice-character: 磁性,低沉,有力
+      suitable-genres: 摇滚,流行,电子,说唱
+      vocal-range:
+        low: E2
+        high: A4
+        tessitura-low: A2
+        tessitura-high: E4
+      languages:
+        primary: 中文
+        supported: 中文,英文
+      model:
+        engine: diffsvc
+        path: /models/diffsvc/yexing.pth
+        config: /models/diffsvc/yexing_config.json
+        speaker-id: 0
+      defaults:
+        vibrato-depth: 55
+        vibrato-rate: 50
+        breathiness: 25
+        tension: 65
+        brightness: 45
+        gender-factor: 80
+      avatar-url: /avatars/yexing.png
+      tags: 摇滚,力量,磁性
+      category: 虚拟歌手
+      license-type: 免费
+      enabled: true
+      sort-order: 3
+
+  # 演唱技巧配置
+  techniques:
+    - id: natural
+      name: 自然音
+      name-en: Natural
+      description: 最基础的演唱方式，声音自然流畅
+      category: 基础
+      difficulty-level: 1
+      # 技巧对应的合成参数
+      synthesis-params:
+        vibrato-depth: 30
+        vibrato-rate: 50
+        breathiness: 20
+        tension: 50
+        brightness: 50
+        phonation-type: normal
+      # LLM Prompt 描述
+      prompt-description: 自然流畅的演唱，不加任何特殊技巧
+      enabled: true
+      sort-order: 1
+      
+    - id: breathy
+      name: 气声
+      name-en: Breathy
+      description: 带有气息感的演唱方式，营造亲密感
+      category: 气息
+      difficulty-level: 2
+      synthesis-params:
+        vibrato-depth: 20
+        vibrato-rate: 40
+        breathiness: 70
+        tension: 30
+        brightness: 40
+        phonation-type: breathy
+      prompt-description: 带有轻柔气息的演唱，声音柔软亲密
+      enabled: true
+      sort-order: 2
+      
+    - id: vibrato
+      name: 颤音
+      name-en: Vibrato
+      description: 音高快速轻微波动，增加情感表达
+      category: 装饰音
+      difficulty-level: 3
+      synthesis-params:
+        vibrato-depth: 80
+        vibrato-rate: 70
+        breathiness: 25
+        tension: 55
+        brightness: 55
+        phonation-type: normal
+      prompt-description: 使用明显的颤音技巧，增加声音的情感波动
+      enabled: true
+      sort-order: 3
+      
+    - id: falsetto
+      name: 假声
+      name-en: Falsetto
+      description: 高音区轻柔的演唱方式
+      category: 发声
+      difficulty-level: 3
+      synthesis-params:
+        vibrato-depth: 35
+        vibrato-rate: 45
+        breathiness: 50
+        tension: 20
+        brightness: 70
+        phonation-type: falsetto
+      prompt-description: 使用假声演唱，声音轻柔飘渺
+      enabled: true
+      sort-order: 4
+      
+    - id: mixed
+      name: 混声
+      name-en: Mixed Voice
+      description: 真声与假声的混合，声音饱满有力
+      category: 发声
+      difficulty-level: 4
+      synthesis-params:
+        vibrato-depth: 50
+        vibrato-rate: 55
+        breathiness: 30
+        tension: 60
+        brightness: 60
+        phonation-type: mixed
+      prompt-description: 使用混声技巧，真假声融合，声音饱满有力
+      enabled: true
+      sort-order: 5
+      
+    - id: riff
+      name: 转音
+      name-en: Riff
+      description: 快速的音高变化装饰
+      category: 装饰音
+      difficulty-level: 4
+      synthesis-params:
+        vibrato-depth: 60
+        vibrato-rate: 80
+        breathiness: 25
+        tension: 55
+        brightness: 60
+        phonation-type: normal
+        pitch-bend-range: 200
+      prompt-description: 使用转音技巧，快速灵活的音高变化
+      enabled: true
+      sort-order: 6
+      
+    - id: growl
+      name: 怒音
+      name-en: Growl
+      description: 带有嘶吼感的演唱方式
+      category: 情感
+      difficulty-level: 4
+      synthesis-params:
+        vibrato-depth: 40
+        vibrato-rate: 60
+        breathiness: 35
+        tension: 85
+        brightness: 40
+        phonation-type: growl
+      prompt-description: 使用怒音技巧，声音带有嘶吼和力量感
+      enabled: true
+      sort-order: 7
+      
+    - id: crying
+      name: 哭腔
+      name-en: Crying Voice
+      description: 带有哭泣感的演唱方式，表达悲伤情绪
+      category: 情感
+      difficulty-level: 3
+      synthesis-params:
+        vibrato-depth: 60
+        vibrato-rate: 55
+        breathiness: 45
+        tension: 40
+        brightness: 35
+        phonation-type: crying
+      prompt-description: 使用哭腔技巧，声音带有哭泣和悲伤感
+      enabled: true
+      sort-order: 8
+
+  # 演唱情绪配置
+  emotions:
+    - id: calm
+      name: 平静
+      name-en: Calm
+      description: 平和、安宁的情绪状态
+      category: 中性
+      # 情绪对应的合成参数调整
+      synthesis-params:
+        intensity: 30
+        pitch-variance: 0.8
+        energy-multiplier: 0.9
+        tempo-factor: 0.95
+        vibrato-depth-modifier: 0.7
+        tension-modifier: 0.8
+      # LLM Prompt 描述
+      prompt-description: 演唱时保持平静、安宁的情绪，声音舒缓温和
+      prompt-keywords: 平静,安宁,舒缓,温和,淡然
+      color-code: "#87CEEB"
+      icon: ☮️
+      enabled: true
+      sort-order: 1
+      
+    - id: happy
+      name: 快乐
+      name-en: Happy
+      description: 欢快、愉悦的情绪
+      category: 积极
+      synthesis-params:
+        intensity: 70
+        pitch-variance: 1.2
+        energy-multiplier: 1.2
+        tempo-factor: 1.05
+        vibrato-depth-modifier: 1.0
+        tension-modifier: 0.9
+      prompt-description: 演唱时表达快乐、欢快的情绪，声音明亮活泼
+      prompt-keywords: 快乐,欢快,愉悦,明亮,活泼
+      color-code: "#FFD700"
+      icon: 😊
+      enabled: true
+      sort-order: 2
+      
+    - id: excited
+      name: 兴奋
+      name-en: Excited
+      description: 激动、亢奋的情绪
+      category: 积极
+      synthesis-params:
+        intensity: 90
+        pitch-variance: 1.4
+        energy-multiplier: 1.4
+        tempo-factor: 1.1
+        vibrato-depth-modifier: 1.2
+        tension-modifier: 1.1
+      prompt-description: 演唱时表达兴奋、激动的情绪，声音高亢有力
+      prompt-keywords: 兴奋,激动,热血,高亢,澎湃
+      color-code: "#FF4500"
+      icon: 🔥
+      enabled: true
+      sort-order: 3
+      
+    - id: affectionate
+      name: 深情
+      name-en: Affectionate
+      description: 温柔、深情的情绪表达
+      category: 积极
+      synthesis-params:
+        intensity: 60
+        pitch-variance: 1.0
+        energy-multiplier: 0.95
+        tempo-factor: 0.92
+        vibrato-depth-modifier: 1.1
+        tension-modifier: 0.85
+      prompt-description: 演唱时表达深情、温柔的情绪，声音饱含感情
+      prompt-keywords: 深情,温柔,柔情,款款,深沉
+      color-code: "#FF69B4"
+      icon: 💕
+      enabled: true
+      sort-order: 4
+      
+    - id: sad
+      name: 忧伤
+      name-en: Sad
+      description: 悲伤、忧郁的情绪
+      category: 消极
+      synthesis-params:
+        intensity: 50
+        pitch-variance: 0.9
+        energy-multiplier: 0.8
+        tempo-factor: 0.88
+        vibrato-depth-modifier: 1.3
+        tension-modifier: 0.75
+      prompt-description: 演唱时表达忧伤、悲伤的情绪，声音低沉忧郁
+      prompt-keywords: 忧伤,悲伤,忧郁,哀愁,伤感
+      color-code: "#4169E1"
+      icon: 😢
+      enabled: true
+      sort-order: 5
+      
+    - id: angry
+      name: 愤怒
+      name-en: Angry
+      description: 愤怒、激烈的情绪
+      category: 消极
+      synthesis-params:
+        intensity: 85
+        pitch-variance: 1.3
+        energy-multiplier: 1.5
+        tempo-factor: 1.08
+        vibrato-depth-modifier: 0.8
+        tension-modifier: 1.4
+      prompt-description: 演唱时表达愤怒、激烈的情绪，声音有力量感
+      prompt-keywords: 愤怒,激烈,怒火,咆哮,激昂
+      color-code: "#DC143C"
+      icon: 😠
+      enabled: true
+      sort-order: 6
+      
+    - id: longing
+      name: 思念
+      name-en: Longing
+      description: 思念、渴望的情绪
+      category: 中性
+      synthesis-params:
+        intensity: 55
+        pitch-variance: 1.0
+        energy-multiplier: 0.85
+        tempo-factor: 0.9
+        vibrato-depth-modifier: 1.2
+        tension-modifier: 0.9
+      prompt-description: 演唱时表达思念、渴望的情绪，声音带有眷恋
+      prompt-keywords: 思念,渴望,眷恋,想念,牵挂
+      color-code: "#9370DB"
+      icon: 🌙
+      enabled: true
+      sort-order: 7
+      
+    - id: hopeful
+      name: 希望
+      name-en: Hopeful
+      description: 充满希望、期待的情绪
+      category: 积极
+      synthesis-params:
+        intensity: 65
+        pitch-variance: 1.15
+        energy-multiplier: 1.1
+        tempo-factor: 1.02
+        vibrato-depth-modifier: 1.0
+        tension-modifier: 0.95
+      prompt-description: 演唱时表达希望、期待的情绪，声音明亮向上
+      prompt-keywords: 希望,期待,憧憬,向往,光明
+      color-code: "#32CD32"
+      icon: 🌈
+      enabled: true
+      sort-order: 8
+
+# ===========================================
+# Jamendo音乐库配置
+# ===========================================
+jamendo:
+  enabled: true
+  client-id: a84decf3
+  api-url: https://api.jamendo.com/v3.0
+  audio-format: mp32
+  default-page-size: 20
+  max-results: 100
+  commercial-only: false
+
+# ===========================================
+# 日志配置
+# ===========================================
+logging:
+  level:
+    com.aisinger: DEBUG

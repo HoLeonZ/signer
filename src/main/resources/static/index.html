@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Singer Studio - 智能歌手创作平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 星空背景 -->
+        <div class="stars-bg">
+            <div class="stars"></div>
+            <div class="stars2"></div>
+            <div class="stars3"></div>
+        </div>
+
+        <!-- 侧边导航 -->
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🎤</span>
+                <span class="logo-text">AI Singer</span>
+            </div>
+            
+            <!-- 快速开始部分 -->
+            <div class="nav-section">
+                <div class="nav-section-title">
+                    <span class="section-icon">🚀</span>
+                    <span>快速开始</span>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-page="home">
+                        <span class="nav-icon">🏠</span>
+                        <span>首页</span>
+                    </li>
+                    <li class="nav-item" data-page="wizard">
+                        <span class="nav-icon">✨</span>
+                        <span>创建AI歌曲</span>
+                        <span class="nav-badge">向导</span>
+                    </li>
+                    <li class="nav-item" data-page="templates">
+                        <span class="nav-icon">📋</span>
+                        <span>模板库</span>
+                    </li>
+                    <li class="nav-item" data-page="projects">
+                        <span class="nav-icon">📁</span>
+                        <span>我的项目</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 后台管理部分 -->
+            <div class="nav-section">
+                <div class="nav-section-title">
+                    <span class="section-icon">⚙️</span>
+                    <span>后台管理</span>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item" data-page="singers-manage">
+                        <span class="nav-icon">🎙️</span>
+                        <span>歌手管理</span>
+                    </li>
+                    <li class="nav-item" data-page="songs-manage">
+                        <span class="nav-icon">🎵</span>
+                        <span>歌曲管理</span>
+                        <span class="nav-badge new">+曲库</span>
+                    </li>
+                    <li class="nav-item" data-page="techniques-manage">
+                        <span class="nav-icon">🎤</span>
+                        <span>技巧管理</span>
+                    </li>
+                    <li class="nav-item" data-page="emotions-manage">
+                        <span class="nav-icon">😊</span>
+                        <span>情绪管理</span>
+                    </li>
+                    <li class="nav-item" data-page="singing-configs">
+                        <span class="nav-icon">🎹</span>
+                        <span>演唱配置</span>
+                        <span class="nav-badge new">新</span>
+                    </li>
+                    <li class="nav-item" data-page="settings">
+                        <span class="nav-icon">🔧</span>
+                        <span>系统设置</span>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            
+            <!-- ==================== 首页 ==================== -->
+            <section id="page-home" class="page active">
+                <div class="page-header">
+                    <h1 class="gradient-text">欢迎来到 AI Singer Studio</h1>
+                    <p class="subtitle">释放你的音乐创造力，让AI为你歌唱</p>
+                </div>
+                
+                <!-- 快速开始入口 -->
+                <div class="quick-start-banner" onclick="navigateTo('wizard')">
+                    <div class="banner-content">
+                        <div class="banner-icon">🎯</div>
+                        <div class="banner-text">
+                            <h2>快速创建AI歌曲</h2>
+                            <p>只需4个步骤，轻松创建您的第一首AI歌曲</p>
+                        </div>
+                        <div class="banner-arrow">→</div>
+                    </div>
+                    <div class="banner-steps">
+                        <span class="step-preview">① 选择歌手</span>
+                        <span class="step-preview">② 创建歌曲</span>
+                        <span class="step-preview">③ 配置演唱</span>
+                        <span class="step-preview">④ 预览生成</span>
+                    </div>
+                </div>
+
+                <div class="home-sections">
+                    <div class="home-section">
+                        <h3>📊 平台概览</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <span class="stat-number" id="stat-singers">0</span>
+                                <span class="stat-label">AI歌手</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="stat-songs">0</span>
+                                <span class="stat-label">歌曲</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="stat-techniques">0</span>
+                                <span class="stat-label">演唱技巧</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="stat-emotions">0</span>
+                                <span class="stat-label">情绪模式</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="home-section">
+                        <h3>🎵 最近创建的歌曲</h3>
+                        <div class="recent-songs" id="recent-songs">
+                            <p class="empty-hint">暂无歌曲，点击上方开始创建！</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== 快速开始向导 ==================== -->
+            <section id="page-wizard" class="page">
+                <!-- 向导进度条 -->
+                <div class="wizard-header">
+                    <h1>🎯 创建AI歌曲</h1>
+                    <div class="wizard-progress">
+                        <div class="progress-step active" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">选择歌手</div>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">创建歌曲</div>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">配置演唱</div>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="4">
+                            <div class="step-number">4</div>
+                            <div class="step-label">预览生成</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤1: 选择歌手 -->
+                <div class="wizard-step active" id="wizard-step-1">
+                    <div class="step-content">
+                        <h2>🎙️ 第一步：选择AI歌手</h2>
+                        <p class="step-desc">选择一位AI歌手来演唱您的歌曲</p>
+                        
+                        <div class="filter-bar">
+                            <button class="filter-btn active" data-filter="all">全部</button>
+                            <button class="filter-btn" data-filter="女声">女声</button>
+                            <button class="filter-btn" data-filter="男声">男声</button>
+                            <button class="filter-btn" data-filter="中性">中性</button>
+                        </div>
+                        
+                        <div class="singers-grid" id="wizard-singers-list">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn-secondary" onclick="navigateTo('home')">取消</button>
+                        <button class="btn-primary" onclick="wizardNext()" id="btn-step1-next" disabled>
+                            下一步 <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 步骤2: 创建歌曲 -->
+                <div class="wizard-step" id="wizard-step-2">
+                    <div class="step-content">
+                        <h2>🎵 第二步：创建歌曲</h2>
+                        <p class="step-desc">选择现有歌曲或使用AI生成新歌词</p>
+                        
+                        <div class="song-source-tabs">
+                            <button class="source-tab active" onclick="switchSongSource('ai')">
+                                <span>✨</span> AI生成歌词
+                            </button>
+                            <button class="source-tab" onclick="switchSongSource('manual')">
+                                <span>✍️</span> 手动输入
+                            </button>
+                            <button class="source-tab" onclick="switchSongSource('existing')">
+                                <span>📂</span> 选择现有歌曲
+                            </button>
+                        </div>
+
+                        <!-- AI生成歌词 -->
+                        <div class="song-source-panel active" id="source-ai">
+                            <div class="config-selector-bar">
+                                <div class="config-selector-item">
+                                    <label>🤖 AI引擎：</label>
+                                    <select id="wizard-llm-select" class="config-dropdown" onchange="onLlmSelectChange(this.value)">
+                                        <!-- 动态加载 -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>主题 *</label>
+                                    <input type="text" id="wizard-theme" placeholder="如：青春、爱情、梦想...">
+                                </div>
+                                <div class="form-group">
+                                    <label>情绪基调</label>
+                                    <select id="wizard-mood">
+                                        <option value="">请选择</option>
+                                        <option value="欢快">欢快</option>
+                                        <option value="抒情">抒情</option>
+                                        <option value="忧伤">忧伤</option>
+                                        <option value="励志">励志</option>
+                                        <option value="浪漫">浪漫</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>音乐风格</label>
+                                    <select id="wizard-style">
+                                        <option value="">请选择</option>
+                                        <option value="流行">流行</option>
+                                        <option value="摇滚">摇滚</option>
+                                        <option value="民谣">民谣</option>
+                                        <option value="古风">古风</option>
+                                        <option value="R&B">R&B</option>
+                                        <option value="电子">电子</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>关键词</label>
+                                    <input type="text" id="wizard-keywords" placeholder="用逗号分隔...">
+                                </div>
+                            </div>
+                            <button class="btn-generate-inline" onclick="wizardGenerateLyrics()">
+                                ✨ 生成歌词
+                            </button>
+                            
+                            <div class="generated-preview hidden" id="wizard-lyrics-preview">
+                                <div class="preview-header">
+                                    <h4 id="wizard-song-title">生成的歌曲</h4>
+                                    <button class="btn-sm" onclick="wizardGenerateLyrics()">🔄 重新生成</button>
+                                </div>
+                                <div class="lyrics-preview-content" id="wizard-lyrics-content"></div>
+                            </div>
+                        </div>
+
+                        <!-- 手动输入 -->
+                        <div class="song-source-panel" id="source-manual">
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label>歌曲标题 *</label>
+                                    <input type="text" id="wizard-manual-title" placeholder="输入歌曲标题">
+                                </div>
+                                <div class="form-group">
+                                    <label>音乐风格</label>
+                                    <select id="wizard-manual-style">
+                                        <option value="流行">流行</option>
+                                        <option value="摇滚">摇滚</option>
+                                        <option value="民谣">民谣</option>
+                                        <option value="古风">古风</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>BPM</label>
+                                    <input type="number" id="wizard-manual-bpm" value="120" min="60" max="200">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>歌词 *</label>
+                                    <textarea id="wizard-manual-lyrics" rows="10" placeholder="输入歌词内容...&#10;&#10;使用空行分隔不同段落"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 选择现有歌曲 -->
+                        <div class="song-source-panel" id="source-existing">
+                            <div class="existing-songs-list" id="wizard-existing-songs">
+                                <!-- 动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn-secondary" onclick="wizardPrev()">
+                            <span>←</span> 上一步
+                        </button>
+                        <button class="btn-primary" onclick="wizardNext()" id="btn-step2-next">
+                            下一步 <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 步骤3: 配置演唱 -->
+                <div class="wizard-step" id="wizard-step-3">
+                    <div class="step-content">
+                        <h2>🎚️ 第三步：配置演唱参数</h2>
+                        <p class="step-desc">选择演唱配置模板，并为每个片段设置技巧与情绪</p>
+                        
+                        <!-- 演唱配置选择 -->
+                        <div class="singing-config-selector">
+                            <div class="config-selector-header">
+                                <h3>🎹 选择演唱配置</h3>
+                                <button class="btn-sm" onclick="showSingingConfigDetail()">查看详情</button>
+                            </div>
+                            <div class="config-selector-bar">
+                                <div class="config-selector-item full-width">
+                                    <label>演唱风格预设：</label>
+                                    <select id="wizard-singing-config" class="config-dropdown" onchange="onSingingConfigChange(this.value)">
+                                        <!-- 动态加载 -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="config-preview-mini" id="singing-config-preview">
+                                <!-- 配置预览 -->
+                            </div>
+                        </div>
+                        
+                        <h4 class="section-title">📝 片段配置</h4>
+                        <div class="segments-config" id="wizard-segments-config">
+                            <!-- 动态生成片段配置 -->
+                        </div>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn-secondary" onclick="wizardPrev()">
+                            <span>←</span> 上一步
+                        </button>
+                        <button class="btn-primary" onclick="wizardNext()">
+                            下一步 <span>→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 步骤4: 预览生成 -->
+                <div class="wizard-step" id="wizard-step-4">
+                    <div class="step-content">
+                        <h2>🎉 第四步：预览并保存</h2>
+                        <p class="step-desc">确认您的配置，保存AI歌曲</p>
+                        
+                        <div class="final-preview">
+                            <div class="preview-card">
+                                <div class="preview-section">
+                                    <h4>🎙️ 歌手</h4>
+                                    <div class="preview-value" id="preview-singer">-</div>
+                                </div>
+                                <div class="preview-section">
+                                    <h4>🎵 歌曲</h4>
+                                    <div class="preview-value" id="preview-song">-</div>
+                                </div>
+                                <div class="preview-section">
+                                    <h4>🎸 风格</h4>
+                                    <div class="preview-value" id="preview-style">-</div>
+                                </div>
+                                <div class="preview-section">
+                                    <h4>🎤 演唱配置</h4>
+                                    <div class="preview-value" id="preview-singing-config">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="preview-segments" id="preview-segments">
+                                <!-- 片段预览 -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn-secondary" onclick="wizardPrev()">
+                            <span>←</span> 上一步
+                        </button>
+                        <button class="btn-primary btn-success" onclick="wizardFinish()">
+                            🎉 保存并完成
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== 模板库 ==================== -->
+            <section id="page-templates" class="page">
+                <div class="page-header">
+                    <h1>📋 歌曲模板库</h1>
+                    <p class="subtitle">选择预设模板，快速开始创作</p>
+                </div>
+                
+                <div class="template-categories">
+                    <button class="category-btn active" data-category="all">全部</button>
+                    <button class="category-btn" data-category="流行">💕 流行</button>
+                    <button class="category-btn" data-category="摇滚">🔥 摇滚</button>
+                    <button class="category-btn" data-category="古风">🏯 古风</button>
+                    <button class="category-btn" data-category="民谣">🌻 民谣</button>
+                    <button class="category-btn" data-category="电子">🎧 电子</button>
+                    <button class="category-btn" data-category="R&B">🌙 R&B</button>
+                    <button class="category-btn" data-category="说唱">🎤 说唱</button>
+                </div>
+                
+                <div class="templates-grid" id="templates-grid">
+                    <!-- 动态生成 -->
+                </div>
+            </section>
+
+            <!-- ==================== 我的项目 ==================== -->
+            <section id="page-projects" class="page">
+                <div class="page-header">
+                    <h1>📁 我的项目</h1>
+                    <button class="btn-primary" onclick="createNewProject()">
+                        <span>+</span> 新建项目
+                    </button>
+                </div>
+                
+                <div class="projects-list" id="projects-list">
+                    <!-- 动态生成 -->
+                </div>
+            </section>
+
+            <!-- ==================== 后台管理：歌手管理 ==================== -->
+            <section id="page-singers-manage" class="page">
+                <div class="page-header">
+                    <h1>🎙️ 歌手管理</h1>
+                    <div class="header-actions">
+                        <button class="btn-secondary ai-btn" onclick="showAiGenerateSingerModal()">
+                            <span>🤖</span> AI一键创建
+                        </button>
+                        <button class="btn-primary" onclick="showAddSingerModal()">
+                            <span>+</span> 添加歌手
+                        </button>
+                    </div>
+                </div>
+                <div class="manage-table-wrapper">
+                    <table class="manage-table">
+                        <thead>
+                            <tr>
+                                <th>头像</th>
+                                <th>名称</th>
+                                <th>声音类型</th>
+                                <th>风格</th>
+                                <th>描述</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="singers-table-body">
+                            <!-- 动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ==================== 后台管理：歌曲管理 ==================== -->
+            <section id="page-songs-manage" class="page">
+                <div class="page-header">
+                    <h1>🎵 歌曲管理</h1>
+                    <div class="header-actions">
+                        <button class="btn-primary" onclick="navigateTo('wizard')">
+                            <span>+</span> 创建歌曲
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 歌曲来源切换标签 -->
+                <div class="songs-source-tabs">
+                    <button class="source-tab-btn active" data-source="local" onclick="switchSongsSource('local')">
+                        <span class="tab-icon">📁</span>
+                        <span class="tab-text">本地歌曲</span>
+                        <span class="tab-count" id="local-songs-count">0</span>
+                    </button>
+                    <button class="source-tab-btn" data-source="jamendo" onclick="switchSongsSource('jamendo')">
+                        <span class="tab-icon">🌐</span>
+                        <span class="tab-text">Jamendo曲库</span>
+                        <span class="tab-badge">在线</span>
+                    </button>
+                </div>
+                
+                <!-- 本地歌曲面板 -->
+                <div class="songs-panel active" id="songs-panel-local">
+                    <div class="panel-toolbar">
+                        <input type="text" id="local-songs-search" placeholder="搜索本地歌曲..." 
+                               class="search-input" onkeyup="filterLocalSongs()">
+                        <div class="filter-pills">
+                            <span class="filter-pill active" data-filter="all" onclick="filterLocalByStyle('all')">全部</span>
+                            <span class="filter-pill" data-filter="流行" onclick="filterLocalByStyle('流行')">流行</span>
+                            <span class="filter-pill" data-filter="摇滚" onclick="filterLocalByStyle('摇滚')">摇滚</span>
+                            <span class="filter-pill" data-filter="民谣" onclick="filterLocalByStyle('民谣')">民谣</span>
+                            <span class="filter-pill" data-filter="古风" onclick="filterLocalByStyle('古风')">古风</span>
+                        </div>
+                    </div>
+                    <div class="songs-list" id="songs-manage-list">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- Jamendo曲库面板 -->
+                <div class="songs-panel" id="songs-panel-jamendo">
+                    <div class="panel-toolbar">
+                        <div class="search-bar-inline">
+                            <input type="text" id="songs-jamendo-search" placeholder="搜索Jamendo歌曲、艺术家..." 
+                                   onkeypress="if(event.key==='Enter') searchSongsJamendo()">
+                            <button class="btn-search-sm" onclick="searchSongsJamendo()">🔍</button>
+                        </div>
+                        <div class="filter-selects">
+                            <select id="songs-jamendo-genre" onchange="filterSongsJamendo()">
+                                <option value="">全部流派</option>
+                                <option value="pop">Pop</option>
+                                <option value="rock">Rock</option>
+                                <option value="electronic">Electronic</option>
+                                <option value="hiphop">Hip-Hop</option>
+                                <option value="jazz">Jazz</option>
+                                <option value="classical">Classical</option>
+                                <option value="ambient">Ambient</option>
+                                <option value="folk">Folk</option>
+                            </select>
+                            <select id="songs-jamendo-mood" onchange="filterSongsJamendo()">
+                                <option value="">全部情绪</option>
+                                <option value="happy">Happy</option>
+                                <option value="sad">Sad</option>
+                                <option value="energetic">Energetic</option>
+                                <option value="relaxing">Relaxing</option>
+                                <option value="romantic">Romantic</option>
+                            </select>
+                            <select id="songs-jamendo-order" onchange="filterSongsJamendo()">
+                                <option value="popularity_total">最热门</option>
+                                <option value="releasedate_desc">最新</option>
+                                <option value="relevance">相关度</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 快捷标签 -->
+                    <div class="quick-tags-bar">
+                        <span class="quick-tag-sm" onclick="quickJamendoSearch('popular')">🔥 热门</span>
+                        <span class="quick-tag-sm" onclick="quickJamendoSearch('latest')">✨ 最新</span>
+                        <span class="quick-tag-sm" onclick="quickJamendoSearch('pop')">🎵 流行</span>
+                        <span class="quick-tag-sm" onclick="quickJamendoSearch('rock')">🎸 摇滚</span>
+                        <span class="quick-tag-sm" onclick="quickJamendoSearch('electronic')">🎹 电子</span>
+                        <span class="quick-tag-sm" onclick="quickJamendoSearch('jazz')">🎷 爵士</span>
+                    </div>
+                    
+                    <!-- Jamendo歌曲列表 -->
+                    <div class="jamendo-tracks-grid" id="songs-jamendo-list">
+                        <div class="loading-placeholder">
+                            <div class="loading-spinner"></div>
+                            <p>点击上方标签加载歌曲...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="pagination-bar" id="songs-jamendo-pagination">
+                        <button class="btn-page-sm" id="songs-jamendo-prev" onclick="songsJamendoPage(-1)" disabled>←</button>
+                        <span class="page-info-sm" id="songs-jamendo-page-info">第 1 页</span>
+                        <button class="btn-page-sm" id="songs-jamendo-next" onclick="songsJamendoPage(1)">→</button>
+                    </div>
+                    
+                    <!-- Jamendo状态提示 -->
+                    <div class="jamendo-hint">
+                        <span class="hint-icon">💡</span>
+                        <span>Jamendo提供免费授权音乐，点击"导入"将歌曲添加到本地歌曲库</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== 后台管理：技巧管理 ==================== -->
+            <section id="page-techniques-manage" class="page">
+                <div class="page-header">
+                    <h1>🎤 演唱技巧管理</h1>
+                    <button class="btn-primary" onclick="showAddTechniqueModal()">
+                        <span>+</span> 添加技巧
+                    </button>
+                </div>
+                <div class="cards-grid" id="techniques-cards">
+                    <!-- 动态生成 -->
+                </div>
+            </section>
+
+            <!-- ==================== 后台管理：情绪管理 ==================== -->
+            <section id="page-emotions-manage" class="page">
+                <div class="page-header">
+                    <h1>😊 演唱情绪管理</h1>
+                    <button class="btn-primary" onclick="showAddEmotionModal()">
+                        <span>+</span> 添加情绪
+                    </button>
+                </div>
+                <div class="cards-grid" id="emotions-cards">
+                    <!-- 动态生成 -->
+                </div>
+            </section>
+
+            <!-- ==================== 后台管理：演唱配置 ==================== -->
+            <section id="page-singing-configs" class="page">
+                <div class="page-header">
+                    <h1>🎹 演唱配置管理</h1>
+                    <div class="header-actions">
+                        <button class="btn-secondary" onclick="showAddSingingConfigModal()">
+                            <span>+</span> 自定义配置
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="singing-config-intro">
+                    <p>演唱配置控制AI歌手的演唱方式，包括节奏、力度、发音、音高、颤音、音色和效果等参数。选择合适的配置可以让演唱更符合歌曲风格。</p>
+                </div>
+                
+                <div class="config-filter-bar">
+                    <button class="filter-btn active" data-filter="all" onclick="filterSingingConfigs('all')">全部</button>
+                    <button class="filter-btn" data-filter="流行" onclick="filterSingingConfigs('流行')">流行</button>
+                    <button class="filter-btn" data-filter="抒情" onclick="filterSingingConfigs('抒情')">抒情</button>
+                    <button class="filter-btn" data-filter="摇滚" onclick="filterSingingConfigs('摇滚')">摇滚</button>
+                    <button class="filter-btn" data-filter="古风" onclick="filterSingingConfigs('古风')">古风</button>
+                    <button class="filter-btn" data-filter="电子" onclick="filterSingingConfigs('电子')">电子</button>
+                    <button class="filter-btn" data-filter="R&B" onclick="filterSingingConfigs('R&B')">R&B</button>
+                    <button class="filter-btn" data-filter="民谣" onclick="filterSingingConfigs('民谣')">民谣</button>
+                </div>
+                
+                <div class="singing-configs-grid" id="singing-configs-grid">
+                    <!-- 动态生成 -->
+                </div>
+            </section>
+
+            <!-- ==================== 后台管理：系统设置 ==================== -->
+            <section id="page-settings" class="page">
+                <div class="page-header">
+                    <h1>🔧 系统设置</h1>
+                    <button class="btn-secondary" onclick="refreshSettings()">
+                        <span>🔄</span> 刷新配置
+                    </button>
+                </div>
+                
+                <div class="settings-sections">
+                    <!-- LLM设置 -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3>🤖 AI引擎配置</h3>
+                            <span class="config-source-badge" id="llm-config-source">数据库配置</span>
+                        </div>
+                        <p class="settings-desc">配置用于歌词生成的AI服务，支持通义千问、OpenAI和Gemini</p>
+                        
+                        <div class="settings-form">
+                            <div class="llm-config-list" id="llm-config-list">
+                                <!-- 动态生成LLM配置卡片 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Jamendo设置 -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3>🎵 Jamendo音乐库配置</h3>
+                            <span class="config-source-badge" id="jamendo-config-source">数据库配置</span>
+                        </div>
+                        <p class="settings-desc">配置Jamendo免费音乐库API，用于浏览和导入音乐</p>
+                        
+                        <form id="form-jamendo-config" class="settings-form" onsubmit="saveJamendoConfig(event)">
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="jamendo-enabled">启用状态</label>
+                                    <select id="jamendo-enabled">
+                                        <option value="true">启用</option>
+                                        <option value="false">禁用</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jamendo-client-id">Client ID *</label>
+                                    <input type="text" id="jamendo-client-id" placeholder="从 devportal.jamendo.com 获取">
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="jamendo-api-url">API URL</label>
+                                    <input type="text" id="jamendo-api-url" value="https://api.jamendo.com/v3.0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="jamendo-audio-format">音频格式</label>
+                                    <select id="jamendo-audio-format">
+                                        <option value="mp31">MP3 96kbps</option>
+                                        <option value="mp32" selected>MP3 VBR</option>
+                                        <option value="ogg">OGG</option>
+                                        <option value="flac">FLAC</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label for="jamendo-page-size">每页数量</label>
+                                    <input type="number" id="jamendo-page-size" value="20" min="1" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="jamendo-max-results">最大结果数</label>
+                                    <input type="number" id="jamendo-max-results" value="100" min="1" max="500">
+                                </div>
+                                <div class="form-group">
+                                    <label for="jamendo-commercial">仅商用歌曲</label>
+                                    <select id="jamendo-commercial">
+                                        <option value="false">否</option>
+                                        <option value="true">是</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-actions">
+                                <button type="button" class="btn-secondary" onclick="testJamendoConnection()">
+                                    🔗 测试连接
+                                </button>
+                                <button type="submit" class="btn-primary">
+                                    💾 保存配置
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- 语音合成服务配置 -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3>🔊 语音合成服务配置</h3>
+                            <button class="btn-secondary btn-sm" onclick="showAddSynthesisProviderModal()">
+                                <span>+</span> 添加服务
+                            </button>
+                        </div>
+                        <p class="settings-desc">配置语音合成服务提供商的API密钥，支持云端服务和本地部署</p>
+                        
+                        <div class="synthesis-provider-list" id="synthesis-provider-list">
+                            <!-- 动态生成语音合成服务配置卡片 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 关于 -->
+                    <div class="settings-card">
+                        <h3>ℹ️ 关于</h3>
+                        <div class="about-info">
+                            <p><strong>AI Singer Studio</strong> v1.0.0</p>
+                            <p>一个配置化的AI歌手创作平台</p>
+                            <p class="tech-stack">
+                                技术栈：Spring Boot 3.2 + H2 Database + 通义千问/OpenAI/Gemini
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <p id="loading-text">加载中...</p>
+    </div>
+
+    <!-- Toast消息 -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- ==================== 歌手编辑模态框 ==================== -->
+    <div id="modal-singer" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="modal-singer-title">添加歌手</h2>
+                <button class="modal-close" onclick="closeModal('modal-singer')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-singer" class="config-form">
+                    <input type="hidden" id="singer-id">
+                    
+                    <!-- 标签页导航 -->
+                    <div class="form-tabs">
+                        <button type="button" class="form-tab active" onclick="switchFormTab('singer', 'basic')">基本信息</button>
+                        <button type="button" class="form-tab" onclick="switchFormTab('singer', 'voice')">声音配置</button>
+                        <button type="button" class="form-tab" onclick="switchFormTab('singer', 'params')">合成参数</button>
+                        <button type="button" class="form-tab" onclick="switchFormTab('singer', 'engine')">引擎配置</button>
+                    </div>
+                    
+                    <!-- 基本信息 -->
+                    <div class="form-tab-panel active" id="singer-tab-basic">
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>名称 *</label>
+                                <input type="text" id="singer-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>英文名</label>
+                                <input type="text" id="singer-name-en">
+                            </div>
+                            <div class="form-group">
+                                <label>头像URL</label>
+                                <input type="text" id="singer-avatar-url" placeholder="/avatars/xxx.png">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>描述</label>
+                            <textarea id="singer-description" rows="3" placeholder="歌手介绍..."></textarea>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>声音类型</label>
+                                <select id="singer-voice-type">
+                                    <option value="女声">女声</option>
+                                    <option value="男声">男声</option>
+                                    <option value="中性">中性</option>
+                                    <option value="童声">童声</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>风格</label>
+                                <select id="singer-voice-style">
+                                    <option value="流行">流行</option>
+                                    <option value="摇滚">摇滚</option>
+                                    <option value="民谣">民谣</option>
+                                    <option value="古风">古风</option>
+                                    <option value="R&B">R&B</option>
+                                    <option value="电子">电子</option>
+                                    <option value="抒情">抒情</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>分类</label>
+                                <input type="text" id="singer-category" placeholder="虚拟歌手">
+                            </div>
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>声音特点</label>
+                                <input type="text" id="singer-voice-character" placeholder="温暖,柔和,细腻">
+                            </div>
+                            <div class="form-group">
+                                <label>标签</label>
+                                <input type="text" id="singer-tags" placeholder="甜美,治愈,抒情">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 声音配置 -->
+                    <div class="form-tab-panel" id="singer-tab-voice">
+                        <div class="form-section-title">🎵 音域范围</div>
+                        <div class="form-grid-4">
+                            <div class="form-group">
+                                <label>最低音</label>
+                                <input type="text" id="singer-vocal-range-low" placeholder="A3">
+                            </div>
+                            <div class="form-group">
+                                <label>最高音</label>
+                                <input type="text" id="singer-vocal-range-high" placeholder="E5">
+                            </div>
+                            <div class="form-group">
+                                <label>最佳音区下限</label>
+                                <input type="text" id="singer-tessitura-low" placeholder="C4">
+                            </div>
+                            <div class="form-group">
+                                <label>最佳音区上限</label>
+                                <input type="text" id="singer-tessitura-high" placeholder="C5">
+                            </div>
+                        </div>
+                        
+                        <div class="form-section-title">🌍 语言支持</div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>主要语言</label>
+                                <input type="text" id="singer-primary-language" placeholder="中文">
+                            </div>
+                            <div class="form-group">
+                                <label>支持的语言</label>
+                                <input type="text" id="singer-supported-languages" placeholder="中文,英文,日语">
+                            </div>
+                            <div class="form-group">
+                                <label>方言支持</label>
+                                <input type="text" id="singer-dialect-support" placeholder="粤语,闽南语">
+                            </div>
+                        </div>
+                        
+                        <div class="form-section-title">🎤 演唱能力</div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>擅长技巧</label>
+                                <input type="text" id="singer-technique-strength" placeholder="颤音,假声,转音">
+                            </div>
+                            <div class="form-group">
+                                <label>擅长情感</label>
+                                <input type="text" id="singer-emotion-strength" placeholder="深情,激昂,温柔">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>适合曲风</label>
+                            <input type="text" id="singer-suitable-genres" placeholder="流行,抒情,民谣,R&B">
+                        </div>
+                    </div>
+                    
+                    <!-- 合成参数 -->
+                    <div class="form-tab-panel" id="singer-tab-params">
+                        <div class="form-section-title">🎚️ 默认合成参数</div>
+                        <p class="form-hint">这些参数将作为该歌手的默认值，在创作时可单独调整</p>
+                        
+                        <div class="params-sliders">
+                            <div class="param-slider-group">
+                                <label>颤音深度 <span class="param-value" id="singer-vibrato-depth-value">50</span></label>
+                                <input type="range" id="singer-default-vibrato-depth" min="0" max="100" value="50" 
+                                       oninput="updateParamValue('singer-vibrato-depth', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>颤音速率 <span class="param-value" id="singer-vibrato-rate-value">50</span></label>
+                                <input type="range" id="singer-default-vibrato-rate" min="0" max="100" value="50"
+                                       oninput="updateParamValue('singer-vibrato-rate', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>气声程度 <span class="param-value" id="singer-breathiness-value">30</span></label>
+                                <input type="range" id="singer-default-breathiness" min="0" max="100" value="30"
+                                       oninput="updateParamValue('singer-breathiness', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>张力 <span class="param-value" id="singer-tension-value">50</span></label>
+                                <input type="range" id="singer-default-tension" min="0" max="100" value="50"
+                                       oninput="updateParamValue('singer-tension', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>明亮度 <span class="param-value" id="singer-brightness-value">50</span></label>
+                                <input type="range" id="singer-default-brightness" min="0" max="100" value="50"
+                                       oninput="updateParamValue('singer-brightness', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>性别因子 <span class="param-value" id="singer-gender-factor-value">50</span></label>
+                                <input type="range" id="singer-default-gender-factor" min="0" max="100" value="50"
+                                       oninput="updateParamValue('singer-gender-factor', this.value)">
+                                <div class="param-labels">
+                                    <span>女性化</span>
+                                    <span>男性化</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 引擎配置 -->
+                    <div class="form-tab-panel" id="singer-tab-engine">
+                        <div class="form-section-title">🔧 声音合成引擎</div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>合成引擎</label>
+                                <select id="singer-voice-engine">
+                                    <option value="">未配置</option>
+                                    <option value="sovits">So-VITS-SVC</option>
+                                    <option value="vits">VITS</option>
+                                    <option value="diffsvc">Diff-SVC</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>模型版本</label>
+                                <input type="text" id="singer-voice-model-version" placeholder="v1.0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>模型文件路径</label>
+                            <input type="text" id="singer-voice-model-path" placeholder="/models/sovits/singer.pth">
+                        </div>
+                        <div class="form-group">
+                            <label>模型配置JSON</label>
+                            <textarea id="singer-model-config-json" rows="4" placeholder='{"config": "path/to/config.json"}'></textarea>
+                        </div>
+                        
+                        <div class="form-section-title">📜 版权信息</div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>授权类型</label>
+                                <select id="singer-license-type">
+                                    <option value="免费">免费</option>
+                                    <option value="商用">商用授权</option>
+                                    <option value="个人">仅个人使用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>创建者</label>
+                                <input type="text" id="singer-creator">
+                            </div>
+                            <div class="form-group">
+                                <label>原始艺人</label>
+                                <input type="text" id="singer-original-artist" placeholder="如基于真人训练">
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>排序顺序</label>
+                                <input type="number" id="singer-sort-order" value="0">
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="singer-enabled" checked>
+                                    启用此歌手
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-singer')">取消</button>
+                <button class="btn-primary" onclick="saveSinger()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 技巧编辑模态框 ==================== -->
+    <div id="modal-technique" class="modal hidden">
+        <div class="modal-content modal-medium">
+            <div class="modal-header">
+                <h2 id="modal-technique-title">添加技巧</h2>
+                <button class="modal-close" onclick="closeModal('modal-technique')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-technique" class="config-form">
+                    <input type="hidden" id="technique-id">
+                    
+                    <div class="form-tabs">
+                        <button type="button" class="form-tab active" onclick="switchFormTab('technique', 'basic')">基本信息</button>
+                        <button type="button" class="form-tab" onclick="switchFormTab('technique', 'params')">合成参数</button>
+                        <button type="button" class="form-tab" onclick="switchFormTab('technique', 'prompt')">LLM Prompt</button>
+                    </div>
+                    
+                    <!-- 基本信息 -->
+                    <div class="form-tab-panel active" id="technique-tab-basic">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>技巧ID</label>
+                                <input type="text" id="technique-technique-id" placeholder="如: vibrato">
+                            </div>
+                            <div class="form-group">
+                                <label>名称 *</label>
+                                <input type="text" id="technique-name" required>
+                            </div>
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>英文名</label>
+                                <input type="text" id="technique-name-en">
+                            </div>
+                            <div class="form-group">
+                                <label>分类</label>
+                                <select id="technique-category">
+                                    <option value="基础">基础</option>
+                                    <option value="气息">气息</option>
+                                    <option value="发声">发声</option>
+                                    <option value="装饰音">装饰音</option>
+                                    <option value="情感">情感</option>
+                                    <option value="节奏">节奏</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>描述</label>
+                            <textarea id="technique-description" rows="2"></textarea>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>难度等级</label>
+                                <select id="technique-difficulty-level">
+                                    <option value="1">1 - 入门</option>
+                                    <option value="2">2 - 简单</option>
+                                    <option value="3">3 - 中等</option>
+                                    <option value="4">4 - 较难</option>
+                                    <option value="5">5 - 高级</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>排序</label>
+                                <input type="number" id="technique-sort-order" value="0">
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="technique-enabled" checked>
+                                    启用
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 合成参数 -->
+                    <div class="form-tab-panel" id="technique-tab-params">
+                        <div class="form-section-title">🎚️ 声音合成参数</div>
+                        <p class="form-hint">使用此技巧时应用的合成参数</p>
+                        
+                        <div class="params-sliders">
+                            <div class="param-slider-group">
+                                <label>颤音深度 <span class="param-value" id="technique-vibrato-depth-value">50</span></label>
+                                <input type="range" id="technique-vibrato-depth" min="0" max="100" value="50"
+                                       oninput="updateParamValue('technique-vibrato-depth', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>颤音速率 <span class="param-value" id="technique-vibrato-rate-value">50</span></label>
+                                <input type="range" id="technique-vibrato-rate" min="0" max="100" value="50"
+                                       oninput="updateParamValue('technique-vibrato-rate', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>气声程度 <span class="param-value" id="technique-breathiness-value">30</span></label>
+                                <input type="range" id="technique-breathiness" min="0" max="100" value="30"
+                                       oninput="updateParamValue('technique-breathiness', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>张力 <span class="param-value" id="technique-tension-value">50</span></label>
+                                <input type="range" id="technique-tension" min="0" max="100" value="50"
+                                       oninput="updateParamValue('technique-tension', this.value)">
+                            </div>
+                            <div class="param-slider-group">
+                                <label>明亮度 <span class="param-value" id="technique-brightness-value">50</span></label>
+                                <input type="range" id="technique-brightness" min="0" max="100" value="50"
+                                       oninput="updateParamValue('technique-brightness', this.value)">
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>发声类型</label>
+                                <select id="technique-phonation-type">
+                                    <option value="normal">正常</option>
+                                    <option value="breathy">气声</option>
+                                    <option value="falsetto">假声</option>
+                                    <option value="mixed">混声</option>
+                                    <option value="growl">怒音</option>
+                                    <option value="crying">哭腔</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>音高弯曲范围 (cents)</label>
+                                <input type="number" id="technique-pitch-bend-range" value="100" min="0" max="500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- LLM Prompt -->
+                    <div class="form-tab-panel" id="technique-tab-prompt">
+                        <div class="form-section-title">💬 LLM Prompt配置</div>
+                        <p class="form-hint">用于AI歌词生成时的提示描述</p>
+                        
+                        <div class="form-group">
+                            <label>Prompt描述</label>
+                            <textarea id="technique-prompt-description" rows="4" 
+                                      placeholder="描述这个技巧应该如何影响演唱，用于AI生成歌词时的提示..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-technique')">取消</button>
+                <button class="btn-primary" onclick="saveTechnique()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 情绪编辑模态框 ==================== -->
+    <div id="modal-emotion" class="modal hidden">
+        <div class="modal-content modal-medium">
+            <div class="modal-header">
+                <h2 id="modal-emotion-title">添加情绪</h2>
+                <button class="modal-close" onclick="closeModal('modal-emotion')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-emotion" class="config-form">
+                    <input type="hidden" id="emotion-id">
+                    
+                    <div class="form-tabs">
+                        <button type="button" class="form-tab active" onclick="switchFormTab('emotion', 'basic')">基本信息</button>
+                        <button type="button" class="form-tab" onclick="switchFormTab('emotion', 'params')">合成参数</button>
+                        <button type="button" class="form-tab" onclick="switchFormTab('emotion', 'prompt')">LLM Prompt</button>
+                    </div>
+                    
+                    <!-- 基本信息 -->
+                    <div class="form-tab-panel active" id="emotion-tab-basic">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>情绪ID</label>
+                                <input type="text" id="emotion-emotion-id" placeholder="如: happy">
+                            </div>
+                            <div class="form-group">
+                                <label>名称 *</label>
+                                <input type="text" id="emotion-name" required>
+                            </div>
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>英文名</label>
+                                <input type="text" id="emotion-name-en">
+                            </div>
+                            <div class="form-group">
+                                <label>分类</label>
+                                <select id="emotion-category">
+                                    <option value="积极">积极</option>
+                                    <option value="消极">消极</option>
+                                    <option value="中性">中性</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>描述</label>
+                            <textarea id="emotion-description" rows="2"></textarea>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>颜色</label>
+                                <input type="color" id="emotion-color-code" value="#FFD700">
+                            </div>
+                            <div class="form-group">
+                                <label>图标/Emoji</label>
+                                <input type="text" id="emotion-icon-name" placeholder="😊">
+                            </div>
+                            <div class="form-group">
+                                <label>排序</label>
+                                <input type="number" id="emotion-sort-order" value="0">
+                            </div>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="emotion-enabled" checked>
+                                启用
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 合成参数 -->
+                    <div class="form-tab-panel" id="emotion-tab-params">
+                        <div class="form-section-title">🎚️ 情绪合成参数</div>
+                        <p class="form-hint">使用此情绪时对声音合成的影响</p>
+                        
+                        <div class="params-sliders">
+                            <div class="param-slider-group">
+                                <label>情绪强度 <span class="param-value" id="emotion-intensity-value">50</span></label>
+                                <input type="range" id="emotion-intensity" min="0" max="100" value="50"
+                                       oninput="updateParamValue('emotion-intensity', this.value)">
+                            </div>
+                        </div>
+                        
+                        <div class="form-section-title">📊 参数修改器</div>
+                        <p class="form-hint">这些系数用于调整基础合成参数 (1.0 = 不变)</p>
+                        
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>音高变化系数</label>
+                                <input type="number" id="emotion-pitch-variance" value="1.0" step="0.1" min="0.5" max="2.0">
+                            </div>
+                            <div class="form-group">
+                                <label>能量乘数</label>
+                                <input type="number" id="emotion-energy-multiplier" value="1.0" step="0.1" min="0.5" max="2.0">
+                            </div>
+                            <div class="form-group">
+                                <label>节奏系数</label>
+                                <input type="number" id="emotion-tempo-factor" value="1.0" step="0.05" min="0.5" max="1.5">
+                            </div>
+                            <div class="form-group">
+                                <label>颤音深度修改器</label>
+                                <input type="number" id="emotion-vibrato-depth-modifier" value="1.0" step="0.1" min="0" max="2.0">
+                            </div>
+                            <div class="form-group">
+                                <label>张力修改器</label>
+                                <input type="number" id="emotion-tension-modifier" value="1.0" step="0.1" min="0" max="2.0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- LLM Prompt -->
+                    <div class="form-tab-panel" id="emotion-tab-prompt">
+                        <div class="form-section-title">💬 LLM Prompt配置</div>
+                        <p class="form-hint">用于AI歌词生成时的情绪提示</p>
+                        
+                        <div class="form-group">
+                            <label>Prompt描述</label>
+                            <textarea id="emotion-prompt-description" rows="4" 
+                                      placeholder="描述这种情绪应该如何表达..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>关键词</label>
+                            <input type="text" id="emotion-prompt-keywords" placeholder="快乐,欢快,愉悦,明亮">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-emotion')">取消</button>
+                <button class="btn-primary" onclick="saveEmotion()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LLM配置编辑模态框 ==================== -->
+    <div id="modal-llm-config" class="modal hidden">
+        <div class="modal-content modal-medium">
+            <div class="modal-header">
+                <h2 id="modal-llm-config-title">编辑LLM配置</h2>
+                <button class="modal-close" onclick="closeModal('modal-llm-config')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-llm-config" onsubmit="saveLlmConfig(event)">
+                    <input type="hidden" id="llm-config-id">
+                    <input type="hidden" id="llm-config-provider">
+                    
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="llm-display-name">显示名称</label>
+                            <input type="text" id="llm-display-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-enabled">启用状态</label>
+                            <select id="llm-enabled">
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="llm-api-key">API密钥 *</label>
+                        <input type="password" id="llm-api-key" placeholder="输入API密钥" autocomplete="new-password">
+                        <small class="form-hint">留空则保持原有密钥不变</small>
+                    </div>
+                    
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="llm-api-url">API URL</label>
+                            <input type="text" id="llm-api-url" placeholder="https://api.example.com/v1/chat/completions">
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-model-name">模型名称</label>
+                            <input type="text" id="llm-model-name" placeholder="如: gpt-3.5-turbo">
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label for="llm-temperature">温度 (0-2)</label>
+                            <input type="number" id="llm-temperature" value="0.8" min="0" max="2" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-max-tokens">最大Token</label>
+                            <input type="number" id="llm-max-tokens" value="2000" min="100" max="8000">
+                        </div>
+                        <div class="form-group">
+                            <label for="llm-timeout">超时(秒)</label>
+                            <input type="number" id="llm-timeout" value="60" min="10" max="300">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="llm-description">描述</label>
+                        <textarea id="llm-description" rows="2" placeholder="配置描述"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-llm-config')">取消</button>
+                <button class="btn-primary" onclick="document.getElementById('form-llm-config').requestSubmit()">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== AI一键创建歌手模态框 ==================== -->
+    <div id="modal-ai-singer" class="modal hidden">
+        <div class="modal-content modal-medium">
+            <div class="modal-header ai-modal-header">
+                <h2>🤖 AI一键创建歌手</h2>
+                <button class="modal-close" onclick="closeModal('modal-ai-singer')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="ai-generate-section">
+                    <div class="ai-tips">
+                        <h4>💡 使用提示</h4>
+                        <p>用自然语言描述你想要的AI歌手，系统将自动生成完整配置。</p>
+                        <div class="ai-examples">
+                            <span class="ai-example-label">示例：</span>
+                            <button type="button" class="ai-example-tag" onclick="fillAiPrompt('温柔甜美的女声歌手，擅长唱抒情歌曲，声音像邓紫棋')">温柔女声</button>
+                            <button type="button" class="ai-example-tag" onclick="fillAiPrompt('沙哑有力的摇滚男声，适合唱激情澎湃的摇滚歌曲')">摇滚男声</button>
+                            <button type="button" class="ai-example-tag" onclick="fillAiPrompt('空灵清澈的古风女声，擅长演唱中国风歌曲，带有戏腔元素')">古风女声</button>
+                            <button type="button" class="ai-example-tag" onclick="fillAiPrompt('低沉磁性的R&B男声，擅长情歌和慢摇，声音性感')">R&B男声</button>
+                            <button type="button" class="ai-example-tag" onclick="fillAiPrompt('甜美活泼的少女声线，适合唱日系动漫歌曲和萌系歌曲')">萌系少女</button>
+                        </div>
+                    </div>
+                    
+                    <form id="form-ai-singer" onsubmit="generateAiSinger(event)">
+                        <div class="config-selector-bar modal-config-bar">
+                            <div class="config-selector-item">
+                                <label>🤖 使用AI引擎：</label>
+                                <select id="ai-singer-llm-select" class="config-dropdown">
+                                    <!-- 动态加载 -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ai-singer-prompt">描述你想要的歌手 *</label>
+                            <textarea id="ai-singer-prompt" rows="4" required 
+                                placeholder="例如：创建一个温暖治愈的女声歌手，擅长唱轻音乐和民谣，声音像陈绮贞一样清新自然..."></textarea>
+                        </div>
+                        
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="ai-singer-reference">参考歌手（可选）</label>
+                                <input type="text" id="ai-singer-reference" placeholder="如：周杰伦、Taylor Swift">
+                            </div>
+                            <div class="form-group">
+                                <label for="ai-singer-language">主要语言</label>
+                                <select id="ai-singer-language">
+                                    <option value="中文">中文</option>
+                                    <option value="英文">英文</option>
+                                    <option value="日语">日语</option>
+                                    <option value="韩语">韩语</option>
+                                    <option value="粤语">粤语</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-action-buttons">
+                            <button type="button" class="btn-secondary" onclick="previewAiSinger()">
+                                👁️ 预览配置
+                            </button>
+                            <button type="submit" class="btn-primary ai-create-btn">
+                                🚀 一键创建
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- AI生成预览区域 -->
+                    <div id="ai-singer-preview" class="ai-preview-section hidden">
+                        <h4>📋 生成预览</h4>
+                        <div class="ai-preview-content">
+                            <div class="preview-grid">
+                                <div class="preview-item">
+                                    <label>名称</label>
+                                    <span id="preview-singer-name">-</span>
+                                </div>
+                                <div class="preview-item">
+                                    <label>声音类型</label>
+                                    <span id="preview-singer-voice-type">-</span>
+                                </div>
+                                <div class="preview-item">
+                                    <label>风格</label>
+                                    <span id="preview-singer-style">-</span>
+                                </div>
+                                <div class="preview-item">
+                                    <label>声音特点</label>
+                                    <span id="preview-singer-character">-</span>
+                                </div>
+                            </div>
+                            <div class="preview-description">
+                                <label>介绍</label>
+                                <p id="preview-singer-description">-</p>
+                            </div>
+                            <div class="preview-notes">
+                                <label>设计理念</label>
+                                <p id="preview-singer-notes">-</p>
+                            </div>
+                        </div>
+                        <div class="ai-preview-actions">
+                            <button type="button" class="btn-secondary" onclick="hideAiPreview()">重新生成</button>
+                            <button type="button" class="btn-primary" onclick="savePreviewedSinger()">✅ 确认保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 确认删除模态框 ==================== -->
+    <div id="modal-confirm" class="modal hidden">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>确认删除</h2>
+                <button class="modal-close" onclick="closeModal('modal-confirm')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">确定要删除吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-confirm')">取消</button>
+                <button class="btn-danger" id="confirm-delete-btn" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 演唱配置编辑模态框 ==================== -->
+    <div id="modal-singing-config" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="modal-singing-config-title">添加演唱配置</h2>
+                <button class="modal-close" onclick="closeModal('modal-singing-config')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-singing-config" class="config-form" onsubmit="saveSingingConfigForm(event)">
+                    <input type="hidden" id="singing-config-id">
+                    
+                    <!-- 标签页导航 -->
+                    <div class="form-tabs">
+                        <button type="button" class="form-tab active" onclick="switchSingingConfigTab('basic')">基本信息</button>
+                        <button type="button" class="form-tab" onclick="switchSingingConfigTab('rhythm')">节奏控制</button>
+                        <button type="button" class="form-tab" onclick="switchSingingConfigTab('dynamics')">力度控制</button>
+                        <button type="button" class="form-tab" onclick="switchSingingConfigTab('articulation')">发音控制</button>
+                        <button type="button" class="form-tab" onclick="switchSingingConfigTab('pitch')">音高/颤音</button>
+                        <button type="button" class="form-tab" onclick="switchSingingConfigTab('timbre')">音色控制</button>
+                        <button type="button" class="form-tab" onclick="switchSingingConfigTab('effects')">效果控制</button>
+                    </div>
+                    
+                    <!-- 基本信息 -->
+                    <div class="form-tab-panel active" id="singing-config-tab-basic">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>配置名称 *</label>
+                                <input type="text" id="sc-name" required placeholder="如：深情抒情">
+                            </div>
+                            <div class="form-group">
+                                <label>英文名称</label>
+                                <input type="text" id="sc-name-en" placeholder="如：Emotional Ballad">
+                            </div>
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label>分类</label>
+                                <select id="sc-category">
+                                    <option value="流行">流行</option>
+                                    <option value="抒情">抒情</option>
+                                    <option value="摇滚">摇滚</option>
+                                    <option value="古风">古风</option>
+                                    <option value="电子">电子</option>
+                                    <option value="R&B">R&B</option>
+                                    <option value="民谣">民谣</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>启用状态</label>
+                                <select id="sc-enabled">
+                                    <option value="true">启用</option>
+                                    <option value="false">禁用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>描述</label>
+                            <textarea id="sc-description" rows="2" placeholder="配置的用途和特点"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>适用场景</label>
+                            <input type="text" id="sc-use-case" placeholder="如：情歌、慢摇、治愈系歌曲">
+                        </div>
+                    </div>
+                    
+                    <!-- 节奏控制 -->
+                    <div class="form-tab-panel" id="singing-config-tab-rhythm">
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>默认BPM</label>
+                                <input type="number" id="sc-default-bpm" value="120" min="40" max="240">
+                            </div>
+                            <div class="form-group">
+                                <label>节拍类型</label>
+                                <select id="sc-time-signature">
+                                    <option value="4/4">4/4</option>
+                                    <option value="3/4">3/4</option>
+                                    <option value="6/8">6/8</option>
+                                    <option value="2/4">2/4</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>节奏摇摆感 <span class="value-display" id="sc-swing-val">20</span></label>
+                                <input type="range" id="sc-swing-feel" value="20" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-swing-val')">
+                            </div>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>前置偏移(ms)</label>
+                                <input type="number" id="sc-timing-offset" value="0" min="-100" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>自动呼吸点</label>
+                                <select id="sc-auto-breath">
+                                    <option value="true">启用</option>
+                                    <option value="false">禁用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>呼吸强度 <span class="value-display" id="sc-breath-str-val">50</span></label>
+                                <input type="range" id="sc-breath-strength" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-breath-str-val')">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 力度控制 -->
+                    <div class="form-tab-panel" id="singing-config-tab-dynamics">
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>基础音量 <span class="value-display" id="sc-vol-val">70</span></label>
+                                <input type="range" id="sc-base-volume" value="70" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-vol-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>力度最小值 <span class="value-display" id="sc-dyn-min-val">40</span></label>
+                                <input type="range" id="sc-dynamics-min" value="40" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-dyn-min-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>力度最大值 <span class="value-display" id="sc-dyn-max-val">100</span></label>
+                                <input type="range" id="sc-dynamics-max" value="100" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-dyn-max-val')">
+                            </div>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>起音速度 <span class="value-display" id="sc-attack-val">30</span></label>
+                                <input type="range" id="sc-attack-speed" value="30" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-attack-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>释放速度 <span class="value-display" id="sc-release-val">40</span></label>
+                                <input type="range" id="sc-release-speed" value="40" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-release-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>重音强度 <span class="value-display" id="sc-accent-val">60</span></label>
+                                <input type="range" id="sc-accent-strength" value="60" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-accent-val')">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>自动力度曲线</label>
+                            <select id="sc-auto-dynamics">
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 发音控制 -->
+                    <div class="form-tab-panel" id="singing-config-tab-articulation">
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>咬字清晰度 <span class="value-display" id="sc-clarity-val">70</span></label>
+                                <input type="range" id="sc-articulation-clarity" value="70" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-clarity-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>连音程度 <span class="value-display" id="sc-legato-val">60</span></label>
+                                <input type="range" id="sc-legato-amount" value="60" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-legato-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>辅音强度 <span class="value-display" id="sc-consonant-val">50</span></label>
+                                <input type="range" id="sc-consonant-strength" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-consonant-val')">
+                            </div>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>元音延长 <span class="value-display" id="sc-vowel-val">50</span></label>
+                                <input type="range" id="sc-vowel-length" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-vowel-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>尾音处理</label>
+                                <select id="sc-ending-style">
+                                    <option value="natural">自然衰减</option>
+                                    <option value="cutoff">干净截止</option>
+                                    <option value="fadeout">渐弱</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>发音风格</label>
+                                <select id="sc-pronunciation-style">
+                                    <option value="standard">标准</option>
+                                    <option value="soft">柔和</option>
+                                    <option value="strong">有力</option>
+                                    <option value="lazy">懒散</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 音高/颤音 -->
+                    <div class="form-tab-panel" id="singing-config-tab-pitch">
+                        <h4 class="form-section-title">音高控制</h4>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>音高偏移(半音)</label>
+                                <input type="number" id="sc-pitch-shift" value="0" min="-12" max="12">
+                            </div>
+                            <div class="form-group">
+                                <label>滑音</label>
+                                <select id="sc-portamento-enabled">
+                                    <option value="true">启用</option>
+                                    <option value="false">禁用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>滑音时间(ms)</label>
+                                <input type="number" id="sc-portamento-time" value="80" min="0" max="300">
+                            </div>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>音准修正 <span class="value-display" id="sc-pitch-corr-val">50</span></label>
+                                <input type="range" id="sc-pitch-correction" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-pitch-corr-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>自然波动 <span class="value-display" id="sc-pitch-drift-val">20</span></label>
+                                <input type="range" id="sc-pitch-drift" value="20" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-pitch-drift-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>滑音范围(半音)</label>
+                                <input type="number" id="sc-portamento-range" value="2" min="1" max="12">
+                            </div>
+                        </div>
+                        
+                        <h4 class="form-section-title">颤音控制</h4>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>颤音深度 <span class="value-display" id="sc-vib-depth-val">50</span></label>
+                                <input type="range" id="sc-vibrato-depth" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-vib-depth-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>颤音速率 <span class="value-display" id="sc-vib-rate-val">50</span></label>
+                                <input type="range" id="sc-vibrato-rate" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-vib-rate-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>颤音延迟(ms)</label>
+                                <input type="number" id="sc-vibrato-delay" value="200" min="0" max="1000">
+                            </div>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>颤音渐入(ms)</label>
+                                <input type="number" id="sc-vibrato-attack" value="100" min="0" max="500">
+                            </div>
+                            <div class="form-group">
+                                <label>自动颤音</label>
+                                <select id="sc-auto-vibrato">
+                                    <option value="true">启用</option>
+                                    <option value="false">禁用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>自动颤音阈值(ms)</label>
+                                <input type="number" id="sc-auto-vibrato-threshold" value="400" min="100" max="2000">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 音色控制 -->
+                    <div class="form-tab-panel" id="singing-config-tab-timbre">
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>气声程度 <span class="value-display" id="sc-breathiness-val">30</span></label>
+                                <input type="range" id="sc-breathiness" value="30" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-breathiness-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>声带张力 <span class="value-display" id="sc-tension-val">50</span></label>
+                                <input type="range" id="sc-tension" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-tension-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>明亮度 <span class="value-display" id="sc-brightness-val">50</span></label>
+                                <input type="range" id="sc-brightness" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-brightness-val')">
+                            </div>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>性别因子 <span class="value-display" id="sc-gender-val">50</span></label>
+                                <input type="range" id="sc-gender-factor" value="50" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-gender-val')">
+                                <small class="form-hint">0=女性化 100=男性化</small>
+                            </div>
+                            <div class="form-group">
+                                <label>共鸣类型</label>
+                                <select id="sc-resonance-type">
+                                    <option value="chest">胸腔共鸣</option>
+                                    <option value="head">头腔共鸣</option>
+                                    <option value="mixed" selected>混合共鸣</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>鼻音程度 <span class="value-display" id="sc-nasality-val">30</span></label>
+                                <input type="range" id="sc-nasality" value="30" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-nasality-val')">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 效果控制 -->
+                    <div class="form-tab-panel" id="singing-config-tab-effects">
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>混响量 <span class="value-display" id="sc-reverb-val">30</span></label>
+                                <input type="range" id="sc-reverb-amount" value="30" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-reverb-val')">
+                            </div>
+                            <div class="form-group">
+                                <label>混响类型</label>
+                                <select id="sc-reverb-type">
+                                    <option value="room" selected>Room</option>
+                                    <option value="hall">Hall</option>
+                                    <option value="plate">Plate</option>
+                                    <option value="spring">Spring</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>延迟量 <span class="value-display" id="sc-delay-val">0</span></label>
+                                <input type="range" id="sc-delay-amount" value="0" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-delay-val')">
+                            </div>
+                        </div>
+                        <div class="form-grid-3">
+                            <div class="form-group">
+                                <label>和声</label>
+                                <select id="sc-harmony-enabled">
+                                    <option value="false" selected>禁用</option>
+                                    <option value="true">启用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>和声类型</label>
+                                <select id="sc-harmony-type">
+                                    <option value="third" selected>三度</option>
+                                    <option value="fifth">五度</option>
+                                    <option value="octave">八度</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>合唱效果 <span class="value-display" id="sc-chorus-val">0</span></label>
+                                <input type="range" id="sc-chorus-amount" value="0" min="0" max="100" oninput="updateRangeDisplay(this, 'sc-chorus-val')">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-singing-config')">取消</button>
+                <button class="btn-primary" onclick="saveSingingConfigForm(event)">💾 保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 语音合成服务配置模态框 ==================== -->
+    <div id="modal-synthesis-provider" class="modal hidden">
+        <div class="modal-content modal-medium">
+            <div class="modal-header">
+                <h2 id="modal-synthesis-provider-title">编辑语音合成服务</h2>
+                <button class="modal-close" onclick="closeModal('modal-synthesis-provider')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-synthesis-provider" class="config-form" onsubmit="saveSynthesisProvider(event)">
+                    <input type="hidden" id="sp-id">
+                    <input type="hidden" id="sp-provider">
+                    
+                    <div class="provider-header" id="sp-header">
+                        <!-- 动态显示提供商信息 -->
+                    </div>
+                    
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>显示名称</label>
+                            <input type="text" id="sp-display-name" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>启用状态</label>
+                            <select id="sp-enabled">
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>API Key *</label>
+                        <input type="password" id="sp-api-key" placeholder="请输入API密钥">
+                        <small class="form-hint" id="sp-api-hint">从服务商官网获取API密钥</small>
+                    </div>
+                    
+                    <div class="form-group" id="sp-api-key-secondary-group" style="display:none;">
+                        <label>API Key 2 / Secret</label>
+                        <input type="password" id="sp-api-key-secondary" placeholder="部分服务需要第二个密钥">
+                    </div>
+                    
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>API URL</label>
+                            <input type="text" id="sp-api-url">
+                        </div>
+                        <div class="form-group" id="sp-region-group">
+                            <label>Region</label>
+                            <input type="text" id="sp-region" placeholder="如 eastasia">
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>超时时间(秒)</label>
+                            <input type="number" id="sp-timeout" value="120" min="10" max="600">
+                        </div>
+                        <div class="form-group">
+                            <label>最大并发</label>
+                            <input type="number" id="sp-max-concurrent" value="5" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>速率限制/分钟</label>
+                            <input type="number" id="sp-rate-limit" value="60" min="1" max="10000">
+                        </div>
+                    </div>
+                    
+                    <div class="provider-info-box" id="sp-info-box">
+                        <!-- 动态显示提供商信息 -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal('modal-synthesis-provider')">取消</button>
+                <button type="button" class="btn-secondary" onclick="testSynthesisProvider()">🔗 测试连接</button>
+                <button type="button" class="btn-primary" onclick="saveSynthesisProvider(event)">💾 保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
