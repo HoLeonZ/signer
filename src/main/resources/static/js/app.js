@@ -2272,15 +2272,37 @@ async function loadSynthesisProviders() {
         if (data.success) {
             synthesisProviders = data.data || [];
             renderSynthesisProviderList();
+        } else {
+            console.error('加载语音合成服务配置失败:', data.message);
+            showToast('加载配置失败: ' + (data.message || '未知错误'), 'error');
+            // 即使失败也渲染空列表，避免页面元素消失
+            synthesisProviders = [];
+            renderSynthesisProviderList();
         }
     } catch (error) {
         console.error('加载语音合成服务配置失败:', error);
+        showToast('加载配置失败，请检查网络连接', 'error');
+        // 即使失败也渲染空列表，避免页面元素消失
+        synthesisProviders = [];
+        renderSynthesisProviderList();
     }
 }
 
 function renderSynthesisProviderList() {
     const container = document.getElementById('synthesis-provider-list');
     if (!container) return;
+    
+    // 如果没有数据，显示空状态
+    if (!synthesisProviders || synthesisProviders.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🔧</div>
+                <div class="empty-state-text">暂无语音合成服务配置</div>
+                <div class="empty-state-hint">正在加载配置...</div>
+            </div>
+        `;
+        return;
+    }
     
     const typeIcons = {
         'cloud': '☁️',
@@ -2297,21 +2319,58 @@ function renderSynthesisProviderList() {
     // 按类型分组
     const cloudProviders = synthesisProviders.filter(p => p.providerType === 'cloud');
     const localProviders = synthesisProviders.filter(p => p.providerType === 'local');
+    const apiProviders = synthesisProviders.filter(p => p.providerType === 'api');
     
-    container.innerHTML = `
-        <div class="provider-section">
-            <h4>☁️ 云端服务</h4>
-            <div class="provider-grid">
-                ${cloudProviders.map(provider => renderProviderCard(provider, serviceIcons)).join('')}
+    let html = '';
+    
+    // 云端服务
+    if (cloudProviders.length > 0) {
+        html += `
+            <div class="provider-section">
+                <h4>☁️ 云端服务</h4>
+                <div class="provider-grid">
+                    ${cloudProviders.map(provider => renderProviderCard(provider, serviceIcons)).join('')}
+                </div>
             </div>
-        </div>
-        <div class="provider-section">
-            <h4>💻 本地部署</h4>
-            <div class="provider-grid">
-                ${localProviders.map(provider => renderProviderCard(provider, serviceIcons)).join('')}
+        `;
+    }
+    
+    // API服务
+    if (apiProviders.length > 0) {
+        html += `
+            <div class="provider-section">
+                <h4>🔌 API服务</h4>
+                <div class="provider-grid">
+                    ${apiProviders.map(provider => renderProviderCard(provider, serviceIcons)).join('')}
+                </div>
             </div>
-        </div>
-    `;
+        `;
+    }
+    
+    // 本地部署
+    if (localProviders.length > 0) {
+        html += `
+            <div class="provider-section">
+                <h4>💻 本地部署</h4>
+                <div class="provider-grid">
+                    ${localProviders.map(provider => renderProviderCard(provider, serviceIcons)).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // 如果所有分组都为空，显示空状态
+    if (!html) {
+        html = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🔧</div>
+                <div class="empty-state-text">暂无语音合成服务配置</div>
+                <div class="empty-state-hint">请联系管理员配置服务</div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
 }
 
 function renderProviderCard(provider, serviceIcons) {
@@ -2416,10 +2475,24 @@ async function saveSynthesisProvider(event) {
         
         if (data.success) {
             showToast('配置已保存', 'success');
+            // 更新本地数据，避免重新加载时数据丢失
+            const updatedProvider = data.data;
+            const index = synthesisProviders.findIndex(p => p.id === updatedProvider.id);
+            if (index >= 0) {
+                synthesisProviders[index] = updatedProvider;
+            } else {
+                synthesisProviders.push(updatedProvider);
+            }
+            // 重新渲染列表
+            renderSynthesisProviderList();
             closeModal('modal-synthesis-provider');
-            await loadSynthesisProviders();
+            // 延迟重新加载以确保数据同步
+            setTimeout(() => {
+                loadSynthesisProviders();
+            }, 500);
         } else {
             showToast(data.message || '保存失败', 'error');
+            console.error('保存配置失败:', data);
         }
     } catch (error) {
         console.error('保存语音合成配置失败:', error);
